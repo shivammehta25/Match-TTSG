@@ -1,1 +1,1 @@
-# Match-TTSG
+# Match-TTSG: Unified speech and gesture synthesis using flow matching
