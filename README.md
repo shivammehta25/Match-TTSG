@@ -518,10 +518,6 @@ Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight:
   </p>
 </blockquote>
 
-<p style="height: 10px">
-    <span style="color: #ee4444; font-weight: bold" id="sm-50-trigger-mismatch"> </div>
-</p>
-
 <script>
 
   speech_and_gesture_video_matched = document.getElementById('speech-and-gesture-video-matched')
