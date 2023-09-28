@@ -135,9 +135,9 @@ Please check out the examples below and [read our arXiv preprint for more detail
   cursor: pointer;
 }
 
-audio {
+/* audio {
     width: 240px;
-}
+} */
 
 /* CSS */
 .button-12 {
@@ -220,7 +220,7 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
   </audio>
 
 <p> Transcription: </p>
-<blockquote style="height: 60px">
+<blockquote style="height: 100px">
   <p id="audio-stimuli-from-listening-test-transcript">
     I mean it it's not that I'm against it it's just that I just don't have the time and I just sometimes I'm not bothered and that sort of stuff.
   </p>
