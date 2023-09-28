@@ -480,7 +480,7 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
       <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C3_7_eval_0447.mp4', 'SM-500 4')"/>
       </td>
-    <tr> 
+    </tr> 
   </tbody>
 </table>
 
@@ -626,9 +626,9 @@ Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight:
     </td>
     <td>
       <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/SM_500_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/SM_500_C4_2_eval_0137_mismatched.mp4' ,'SM-500 3')" />
-    </td> 
+    </td>
     </tr>
-      <tr>
+    <tr>
       <td>4</td>
       <td>
         <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/NAT_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/NAT_C4_2_eval_0011_mismatched.mp4' ,'NAT 4')" />
