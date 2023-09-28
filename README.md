@@ -348,7 +348,7 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
 </blockquote>
 
 <p style="height: 10px">
-    <span style="color: #ee4444; font-weight: bold" id="sm-50-trigger"> </div>
+    <span style="color: #ee4444; font-weight: bold" id="sm-50-trigger"> </span> 
 </p>
 
 <script>
