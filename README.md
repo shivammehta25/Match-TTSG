@@ -332,3 +332,156 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
     </tr>
   </tbody>
 </table>
+
+### Gesture-only evaluation (no audio)
+
+<video id="gesture-only-video" class="video-js" controls width="640" height="360">
+    <source id="gesture-only-video-source" src="stimuli/gesture-only/MAT_50_C4_3_eval_0092.mp4" type='video/mp4' />
+</video>
+
+Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > MAT-50 1</span>
+
+<blockquote style="height: 100px">
+  <p id="gesture-only-transcription">
+    If you like touched it, it was excruciatingly sore. And I went up to the teachers I was like look I'm after like really damaging my finger I might have to go to the doctors.
+  </p>
+</blockquote>
+
+<p style="height: 10px">
+    <span style="color: #ee4444; font-weight: bold" id="sm-50-trigger"> </div>
+</p>
+
+<script>
+  gesture_only_video = document.getElementById('gesture-only-video')
+  gesture_only_video_source = document.getElementById('gesture-only-video-source')
+  gesture_only_span_text =  document.getElementById('playing-gesture-only')
+  gesture_only_transcript = document.getElementById('gesture-only-transcription')
+
+  trigger_span = document.getElementById('sm-50-trigger')
+
+  function play_video(filename, text, trigger=false){
+      id = text[text.length - 1];
+
+      gesture_only_video.pause();
+      gesture_only_video_source.src = filename;
+      gesture_only_span_text.innerHTML = text;
+      gesture_only_transcript.innerHTML = transcript_audio_only[id];
+      gesture_only_video.load();
+      gesture_only_video.play();
+
+      if (trigger){
+        trigger_span.innerHTML = "Note: SM-50 was excluded from this evaluations due to its low motion quality ";
+      } else {
+        trigger_span.innerHTML = "";
+      }
+
+  }
+</script>
+
+<table class="tg">
+  <thead>
+    <tr>
+      <th class="tg-0pky">Text prompt #</th>
+      <th class="tg-0pky">NAT</th>
+      <th class="tg-0pky">DIFF</th>
+      <th class="tg-0pky" colspan="2">MAT</th>
+      <th class="tg-0pky" colspan="2">SM</th>
+    </tr>
+    <tr>
+      <th class="tg-0pky">Solver steps</th>
+      <th class="tg-0pky">-</th>
+      <th class="tg-0pky">50 & 500</th>
+      <th class="tg-0pky">50</th>
+      <th class="tg-0pky">500</th>
+      <th class="tg-0pky">50</th>
+      <th class="tg-0pky">500</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/NAT_C4_3_eval_0092.mp4', 'NAT 1')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/DIFF_C4_3_eval_0092.mp4', 'DIFF 1')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C4_3_eval_0092.mp4', 'MAT-50 1')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C4_3_eval_0092.mp4', 'MAT-500 1')"/>
+      </td>
+      <td>
+          <img src="images/play_button_red.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_50_C4_3_eval_0092.mp4', 'SM-50 1', true)"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C4_3_eval_0092.mp4', 'SM-500 1')"/>
+      </td>
+    <tr>
+      <td>2</td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/NAT_C3_7_eval_0163.mp4', 'NAT 2')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/DIFF_C3_7_eval_0163.mp4', 'DIFF 2')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C3_7_eval_0163.mp4', 'MAT-50 2')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C3_7_eval_0163.mp4', 'MAT-500 2')"/>
+      </td>
+      <td>
+          <img src="images/play_button_red.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_50_C3_7_eval_0163.mp4', 'SM-50 2', true)"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C3_7_eval_0163.mp4', 'SM-500 2')"/>
+      </td>
+    <tr> 
+    <tr>
+      <td>3</td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/NAT_C3_7_eval_0047.mp4', 'NAT 3')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/DIFF_C3_7_eval_0047.mp4', 'DIFF 3')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C3_7_eval_0047.mp4', 'MAT-50 3')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C3_7_eval_0047.mp4', 'MAT-500 3')"/>
+      </td>
+      <td>
+          <img src="images/play_button_red.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_50_C3_7_eval_0047.mp4', 'SM-50 3', true)"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C3_7_eval_0047.mp4', 'SM-500 3')"/>
+      </td>
+    <tr> 
+    <tr>
+      <td>4</td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/NAT_C3_7_eval_0447.mp4', 'NAT 4')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/DIFF_C3_7_eval_0447.mp4', 'DIFF 4')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C3_7_eval_0447.mp4', 'MAT-50 4')"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C3_7_eval_0447.mp4', 'MAT-500 4')"/>
+      </td>
+      <td>
+          <img src="images/play_button_red.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_50_C3_7_eval_0447.mp4', 'SM-50 4', true)"/>
+      </td>
+      <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C3_7_eval_0447.mp4', 'SM-500 4')"/>
+      </td>
+    <tr> 
+    
+    
+  </tbody>
+</table>
