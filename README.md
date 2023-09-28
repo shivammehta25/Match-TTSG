@@ -170,12 +170,23 @@ video {
 audio {
   margin: 0.5em;
 }
+
+td img {
+  position: relative;
+  margin: 0 auto;
+  max-width: 650px;
+  padding: 5px;
+  border: 0px;
+}
 </style>
 
 <script>
 
   transcript_audio_only = {
-    1: "I mean it it's not that I'm against it it's just that I just don't have the time and I just sometimes I'm not bothered and that sort of stuff."
+    1: "I mean it it's not that I'm against it it's just that I just don't have the time and I just sometimes I'm not bothered and that sort of stuff.",
+    2: "And then a few weeks later after that my parents were away my granny was minding us and again I don't know why I told my brother to do this but I was like here.",
+    3: "But I remember once my parents were just downstairs in the kitchen and this is when mobile phones just began coming out. So, like my oldest brother and my oldest sister had a mobile phone each I'm pretty sure.",
+    4: "If you like touched it, it was excruciatingly sore. And I went up to the teachers I was like look I'm after like really damaging my finger I might have to go to the doctors."
   }
 
   function play_audio(filename, audio_id,  condition_name, transcription){
@@ -210,7 +221,7 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
 
 <p> Transcription: </p>
 <blockquote style="height: 60px">
-  <p id="stimuli-from-listening-test-transcript">
+  <p id="audio-stimuli-from-listening-test-transcript">
     I mean it it's not that I'm against it it's just that I just don't have the time and I just sometimes I'm not bothered and that sort of stuff.
   </p>
 </blockquote>
@@ -218,12 +229,14 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
 <table class="tg">
   <thead>
     <tr>
+      <th class="tg-0pky">Text prompt #</th>
       <th class="tg-0pky">NAT</th>
       <th class="tg-0pky">DIFF</th>
       <th class="tg-0pky" colspan="2">MAT</th>
       <th class="tg-0pky" colspan="2">SM</th>
     </tr>
     <tr>
+      <th class="tg-0pky">Solver steps</th>
       <th class="tg-0pky">-</th>
       <th class="tg-0pky">50 & 500</th>
       <th class="tg-0pky">50</th>
@@ -234,23 +247,87 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
   </thead>
   <tbody>
     <tr>
-        <td class="tg-0pky">
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/sample_from_test/VOC_1.wav', 'stimuli-from-listening-test', 'VOC , Sentence 1', transcript_audio_only[1])"/>
+        <td>1</td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/NAT_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'NAT , Sentence 1', transcript_audio_only[1])"/>
         </td>
-        <td class="tg-0pky">
-          <audio id="audio-small" controls>
-            <source src="./stimuli/audio-only/DIFF_C4_3_eval_0092.wav" type="audio/wav">
-          </audio>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/DIFF_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'DIFF , Sentence 1', transcript_audio_only[1])"/>
         </td>
-        <td class="tg-0pky">
-          <audio id="audio-small" controls>
-            <source src="./stimuli/audio-only/ISG_3_C3_7_eval_0047.wav" type="audio/wav">
-          </audio>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'MAT-50 , Sentence 1', transcript_audio_only[1])"/>
         </td>
-        <td class="tg-0pky">
-          <audio id="audio-small" controls>
-            <source src="./stimuli/audio-only/Grad-TTS_3_C3_7_eval_0047.wav" type="audio/wav">
-          </audio>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'MAT-500 , Sentence 1', transcript_audio_only[1])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_50_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'SM-50 , Sentence 1', transcript_audio_only[1])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_500_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'SM-500 , Sentence 1', transcript_audio_only[1])"/>
+        </td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/NAT_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'NAT , Sentence 2', transcript_audio_only[2])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/DIFF_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'DIFF , Sentence 2', transcript_audio_only[2])"/>
+        </td> 
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'MAT-50 , Sentence 2', transcript_audio_only[2])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'MAT-500 , Sentence 2', transcript_audio_only[2])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_50_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'SM-50 , Sentence 2', transcript_audio_only[2])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_500_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'SM-500 , Sentence 2', transcript_audio_only[2])"/>
+        </td>
+    </tr>
+    <tr>
+        <td>3</td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/NAT_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'NAT , Sentence 3', transcript_audio_only[3])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/DIFF_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'DIFF , Sentence 3', transcript_audio_only[3])"/>
+        </td> 
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'MAT-50 , Sentence 3', transcript_audio_only[3])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'MAT-500 , Sentence 3', transcript_audio_only[3])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_50_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'SM-50 , Sentence 3', transcript_audio_only[3])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_500_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'SM-500 , Sentence 3', transcript_audio_only[3])"/>
+        </td>
+    </tr>
+    <tr>
+        <td>4</td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/NAT_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'NAT , Sentence 4', transcript_audio_only[4])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/DIFF_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'DIFF , Sentence 4', transcript_audio_only[4])"/>
+        </td> 
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'MAT-50 , Sentence 4', transcript_audio_only[4])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'MAT-500 , Sentence 4', transcript_audio_only[4])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_50_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'SM-50 , Sentence 4', transcript_audio_only[4])"/>
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_500_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'SM-500 , Sentence 4', transcript_audio_only[4])"/>
         </td>
     </tr>
   </tbody>
