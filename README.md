@@ -343,7 +343,7 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
 
 <blockquote style="height: 100px">
   <p id="gesture-only-transcription">
-    If you like touched it, it was excruciatingly sore. And I went up to the teachers I was like look I'm after like really damaging my finger I might have to go to the doctors.
+      I mean it it's not that I'm against it it's just that I just don't have the time and I just sometimes I'm not bothered and that sort of stuff.
   </p>
 </blockquote>
 
@@ -481,7 +481,174 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C3_7_eval_0447.mp4', 'SM-500 4')"/>
       </td>
     <tr> 
-    
-    
   </tbody>
+</table>
+
+### Speech-and-gesture evaluation
+
+<table class="tg">
+<thead>
+  <tr>
+    <th class="tg-0pky">Matched</th>
+    <th class="tg-0pky">Mismatched</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+      <td> 
+          <video id="speech-and-gesture-video-matched" class="video-js" controls width="500" height="282">
+              <source id="speech-and-gesture-video-matched-source" src="stimuli/speech-and-gesture/MAT_50_C4_3_eval_0150_matched.mp4" type='video/mp4' />
+          </video>
+      </td>
+      <td>
+        <video id="speech-and-gesture-video-mismatched" class="video-js" controls width="500" height="282">
+              <source id="speech-and-gesture-video-mismatched-source" src="stimuli/speech-and-gesture/MAT_50_C4_3_eval_0150_mismatched.mp4" type='video/mp4' />
+          </video>
+      </td>
+  </tr>
+</tbody>
+</table>
+<h6> *Note: Matched versus mismatched stimuli were not labelled in the study and presented in random order. </h6>
+
+Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight: bold;" > MAT-50 1</span>
+
+<blockquote style="height: 100px">
+  <p id="speech-and-gesture-transcription">
+    Yeah and then obviously there, there's certain choirs that come down to the church. There's a woman called, I can't remember her name. But she has an incredible voice. Like an amazing voice.
+  </p>
+</blockquote>
+
+<p style="height: 10px">
+    <span style="color: #ee4444; font-weight: bold" id="sm-50-trigger-mismatch"> </div>
+</p>
+
+<script>
+
+  speech_and_gesture_video_matched = document.getElementById('speech-and-gesture-video-matched')
+  speech_and_gesture_video_matched_source = document.getElementById('speech-and-gesture-video-matched-source')
+
+  speech_ang_gesture_video_mismatched = document.getElementById('speech-and-gesture-video-mismatched')
+  speech_and_gesture_video_mismatched_source = document.getElementById('speech-and-gesture-video-mismatched-source')
+
+  speech_and_gesture_span_text =  document.getElementById('playing-speech-and-gesture-span')
+  speech_and_gesture_transcript = document.getElementById('speech-and-gesture-transcription')
+
+
+  transcript_speech_and_gesture = {
+    '1' : "Yeah and then obviously there, there's certain choirs that come down to the church. There's a woman called, I can't remember her name. But she has an incredible voice. Like an amazing voice.",
+    '2' : "When you think about it, that you do as a child, it's just absolutely ridiculous that makes no sense. But you can always justify it back then because it just seemed like the fun right thing to do.",
+    '3' : "You walk around Dublin city centre and even if you try and strike up a conversation with somebody it's impossible because everyone has their headphones in. And again, I would listen to podcasts sometimes with my headphones in walking around the streets.",
+    '4' : "Just so this whole social networking stuff just really really annoys me and cause it just warps people's minds and people are so Fixated on their phones and that sort of stuff that I just hate that so much."
+  }
+
+
+  function play_speech_and_gesture_eval(matched_filename, mismatched_filename, text){
+      id = text[text.length - 1];
+
+      speech_and_gesture_video_matched.pause();
+      speech_ang_gesture_video_mismatched.pause();
+
+      speech_and_gesture_video_matched_source.src = matched_filename;
+      speech_and_gesture_video_mismatched_source.src = mismatched_filename;
+
+      speech_and_gesture_span_text.innerHTML = text;
+      speech_and_gesture_transcript.innerHTML = transcript_speech_and_gesture[id];
+
+      speech_and_gesture_video_matched.load();
+      speech_ang_gesture_video_mismatched.load();
+  }
+</script>
+
+<table class="tg">
+<thead>
+    <tr>
+      <th class="tg-0pky">Text prompt #</th>
+      <th class="tg-0pky">NAT</th>
+      <th class="tg-0pky">DIFF</th>
+      <th class="tg-0pky" colspan="2">MAT</th>
+      <th class="tg-0pky">SM</th>
+    </tr>
+    <tr>
+      <th class="tg-0pky">Solver steps</th>
+      <th class="tg-0pky">-</th>
+      <th class="tg-0pky">50 & 500</th>
+      <th class="tg-0pky">50</th>
+      <th class="tg-0pky">500</th>
+      <th class="tg-0pky">500</th>
+    </tr>
+  </thead>
+<tbody>
+  <tr>
+    <td>1</td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/NAT_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/NAT_C4_3_eval_0150_mismatched.mp4' ,'NAT 1')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/DIFF_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/DIFF_C4_3_eval_0150_mismatched.mp4' ,'DIFF 1')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C4_3_eval_0150_mismatched.mp4' ,'MAT-50 1')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C4_3_eval_0150_mismatched.mp4' ,'MAT-500 1')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/SM_500_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/SM_500_C4_3_eval_0150_mismatched.mp4' ,'SM-500 1')" />
+    </td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/NAT_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/NAT_C3_7_eval_1074_mismatched.mp4' ,'NAT 2')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/DIFF_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/DIFF_C3_7_eval_1074_mismatched.mp4' ,'DIFF 2')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C3_7_eval_1074_mismatched.mp4' ,'MAT-50 2')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C3_7_eval_1074_mismatched.mp4' ,'MAT-500 2')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/SM_500_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/SM_500_C3_7_eval_1074_mismatched.mp4' ,'SM-500 2')" />
+    </td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/NAT_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/NAT_C4_2_eval_0137_mismatched.mp4' ,'NAT 3')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/DIFF_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/DIFF_C4_2_eval_0137_mismatched.mp4' ,'DIFF 3')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C4_2_eval_0137_mismatched.mp4' ,'MAT-50 3')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C4_2_eval_0137_mismatched.mp4' ,'MAT-500 3')" />
+    </td>
+    <td>
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/SM_500_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/SM_500_C4_2_eval_0137_mismatched.mp4' ,'SM-500 3')" />
+    </td> 
+    </tr>
+      <tr>
+      <td>4</td>
+      <td>
+        <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/NAT_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/NAT_C4_2_eval_0011_mismatched.mp4' ,'NAT 4')" />
+      </td>
+      <td>
+        <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/DIFF_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/DIFF_C4_2_eval_0011_mismatched.mp4' ,'DIFF 4')" />
+      </td>
+      <td>
+        <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C4_2_eval_0011_mismatched.mp4' ,'MAT-50 4')" />
+      </td>
+      <td>
+        <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C4_2_eval_0011_mismatched.mp4' ,'MAT-500 4')" />
+      </td>
+      <td>
+        <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/SM_500_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/SM_500_C4_2_eval_0011_mismatched.mp4' ,'SM-500 4')" />
+      </td>  
+    </tr>
+</tbody>
 </table>
