@@ -418,6 +418,7 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
       <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C4_3_eval_0092.mp4', 'SM-500 1')"/>
       </td>
+    </tr>
     <tr>
       <td>2</td>
       <td>
@@ -438,7 +439,7 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
       <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C3_7_eval_0163.mp4', 'SM-500 2')"/>
       </td>
-    <tr> 
+    </tr> 
     <tr>
       <td>3</td>
       <td>
@@ -459,7 +460,7 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
       <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C3_7_eval_0047.mp4', 'SM-500 3')"/>
       </td>
-    <tr> 
+    </tr> 
     <tr>
       <td>4</td>
       <td>
@@ -480,7 +481,7 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
       <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_500_C3_7_eval_0447.mp4', 'SM-500 4')"/>
       </td>
-    </tr> 
+    </tr>
   </tbody>
 </table>
 
