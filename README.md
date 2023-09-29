@@ -1,7 +1,10 @@
-# Match-TTSG: Unified speech and gesture synthesis using flow matching
+# Unified speech and gesture synthesis using flow matching
 
 <head>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <meta name="msapplication-TileColor" content="#da532c">
   <meta charset="UTF-8">
   <meta name="theme-color" content="#ffffff">
@@ -212,7 +215,7 @@ td img {
 
 > Click the buttons in the table to load and play the different stimuli.
 
-Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" style="font-weight: bold;"> MAT-50 </span>
+Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" style="font-weight: bold;"> MA-50 </span>
 
 <p>Audio player: </p>
   <audio id="audio-stimuli-from-listening-test" controls>
@@ -232,7 +235,7 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
       <th class="tg-0pky">Text prompt #</th>
       <th class="tg-0pky">NAT</th>
       <th class="tg-0pky">DIFF</th>
-      <th class="tg-0pky" colspan="2">MAT</th>
+      <th class="tg-0pky" colspan="2">MA</th>
       <th class="tg-0pky" colspan="2">SM</th>
     </tr>
     <tr>
@@ -255,10 +258,10 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/DIFF_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'DIFF , Sentence 1', transcript_audio_only[1])"/>
         </td>
         <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'MAT-50 , Sentence 1', transcript_audio_only[1])"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'MA-50 , Sentence 1', transcript_audio_only[1])"/>
         </td>
         <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'MAT-500 , Sentence 1', transcript_audio_only[1])"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'MA-500 , Sentence 1', transcript_audio_only[1])"/>
         </td>
         <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_50_C4_3_eval_0092.wav', 'audio-stimuli-from-listening-test', 'SM-50 , Sentence 1', transcript_audio_only[1])"/>
@@ -276,10 +279,10 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/DIFF_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'DIFF , Sentence 2', transcript_audio_only[2])"/>
         </td> 
         <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'MAT-50 , Sentence 2', transcript_audio_only[2])"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'MA-50 , Sentence 2', transcript_audio_only[2])"/>
         </td>
         <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'MAT-500 , Sentence 2', transcript_audio_only[2])"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'MA-500 , Sentence 2', transcript_audio_only[2])"/>
         </td>
         <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_50_C3_7_eval_0163.wav', 'audio-stimuli-from-listening-test', 'SM-50 , Sentence 2', transcript_audio_only[2])"/>
@@ -297,10 +300,10 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/DIFF_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'DIFF , Sentence 3', transcript_audio_only[3])"/>
         </td> 
         <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'MAT-50 , Sentence 3', transcript_audio_only[3])"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'MA-50 , Sentence 3', transcript_audio_only[3])"/>
         </td>
         <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'MAT-500 , Sentence 3', transcript_audio_only[3])"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'MA-500 , Sentence 3', transcript_audio_only[3])"/>
         </td>
         <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_50_C3_7_eval_0047.wav', 'audio-stimuli-from-listening-test', 'SM-50 , Sentence 3', transcript_audio_only[3])"/>
@@ -318,10 +321,10 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/DIFF_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'DIFF , Sentence 4', transcript_audio_only[4])"/>
         </td> 
         <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'MAT-50 , Sentence 4', transcript_audio_only[4])"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_50_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'MA-50 , Sentence 4', transcript_audio_only[4])"/>
         </td>
         <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'MAT-500 , Sentence 4', transcript_audio_only[4])"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/MAT_500_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'MA-500 , Sentence 4', transcript_audio_only[4])"/>
         </td>
         <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/audio-only/SM_50_C3_7_eval_0447.wav', 'audio-stimuli-from-listening-test', 'SM-50 , Sentence 4', transcript_audio_only[4])"/>
@@ -339,7 +342,7 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
     <source id="gesture-only-video-source" src="stimuli/gesture-only/MAT_50_C4_3_eval_0092.mp4" type='video/mp4' />
 </video>
 
-Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > MAT-50 1</span>
+Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > MA-50 1</span>
 
 <blockquote style="height: 100px">
   <p id="gesture-only-transcription">
@@ -407,10 +410,10 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/DIFF_C4_3_eval_0092.mp4', 'DIFF 1')"/>
       </td>
       <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C4_3_eval_0092.mp4', 'MAT-50 1')"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C4_3_eval_0092.mp4', 'MA-50 1')"/>
       </td>
       <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C4_3_eval_0092.mp4', 'MAT-500 1')"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C4_3_eval_0092.mp4', 'MA-500 1')"/>
       </td>
       <td>
           <img src="images/play_button_red.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_50_C4_3_eval_0092.mp4', 'SM-50 1', true)"/>
@@ -428,10 +431,10 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/DIFF_C3_7_eval_0163.mp4', 'DIFF 2')"/>
       </td>
       <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C3_7_eval_0163.mp4', 'MAT-50 2')"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C3_7_eval_0163.mp4', 'MA-50 2')"/>
       </td>
       <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C3_7_eval_0163.mp4', 'MAT-500 2')"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C3_7_eval_0163.mp4', 'MA-500 2')"/>
       </td>
       <td>
           <img src="images/play_button_red.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_50_C3_7_eval_0163.mp4', 'SM-50 2', true)"/>
@@ -449,10 +452,10 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/DIFF_C3_7_eval_0047.mp4', 'DIFF 3')"/>
       </td>
       <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C3_7_eval_0047.mp4', 'MAT-50 3')"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C3_7_eval_0047.mp4', 'MA-50 3')"/>
       </td>
       <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C3_7_eval_0047.mp4', 'MAT-500 3')"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C3_7_eval_0047.mp4', 'MA-500 3')"/>
       </td>
       <td>
           <img src="images/play_button_red.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_50_C3_7_eval_0047.mp4', 'SM-50 3', true)"/>
@@ -470,10 +473,10 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/DIFF_C3_7_eval_0447.mp4', 'DIFF 4')"/>
       </td>
       <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C3_7_eval_0447.mp4', 'MAT-50 4')"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_50_C3_7_eval_0447.mp4', 'MA-50 4')"/>
       </td>
       <td>
-          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C3_7_eval_0447.mp4', 'MAT-500 4')"/>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/MAT_500_C3_7_eval_0447.mp4', 'MA-500 4')"/>
       </td>
       <td>
           <img src="images/play_button_red.png" height=40 style="cursor: pointer;" onclick="play_video('stimuli/gesture-only/SM_50_C3_7_eval_0447.mp4', 'SM-50 4', true)"/>
@@ -511,7 +514,7 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
 </table>
 <h6> *Note: Matched versus mismatched stimuli were not labelled in the study and presented in random order. </h6>
 
-Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight: bold;" > MAT-50 1</span>
+Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight: bold;" > MA-50 1</span>
 
 <blockquote style="height: 100px">
   <p id="speech-and-gesture-transcription">
@@ -584,10 +587,10 @@ Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight:
       <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/DIFF_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/DIFF_C4_3_eval_0150_mismatched.mp4' ,'DIFF 1')" />
     </td>
     <td>
-      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C4_3_eval_0150_mismatched.mp4' ,'MAT-50 1')" />
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C4_3_eval_0150_mismatched.mp4' ,'MA-50 1')" />
     </td>
     <td>
-      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C4_3_eval_0150_mismatched.mp4' ,'MAT-500 1')" />
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C4_3_eval_0150_mismatched.mp4' ,'MA-500 1')" />
     </td>
     <td>
       <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/SM_500_C4_3_eval_0150_matched.mp4', 'stimuli/speech-and-gesture/SM_500_C4_3_eval_0150_mismatched.mp4' ,'SM-500 1')" />
@@ -602,10 +605,10 @@ Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight:
       <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/DIFF_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/DIFF_C3_7_eval_1074_mismatched.mp4' ,'DIFF 2')" />
     </td>
     <td>
-      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C3_7_eval_1074_mismatched.mp4' ,'MAT-50 2')" />
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C3_7_eval_1074_mismatched.mp4' ,'MA-50 2')" />
     </td>
     <td>
-      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C3_7_eval_1074_mismatched.mp4' ,'MAT-500 2')" />
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C3_7_eval_1074_mismatched.mp4' ,'MA-500 2')" />
     </td>
     <td>
       <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/SM_500_C3_7_eval_1074_matched.mp4', 'stimuli/speech-and-gesture/SM_500_C3_7_eval_1074_mismatched.mp4' ,'SM-500 2')" />
@@ -620,10 +623,10 @@ Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight:
       <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/DIFF_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/DIFF_C4_2_eval_0137_mismatched.mp4' ,'DIFF 3')" />
     </td>
     <td>
-      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C4_2_eval_0137_mismatched.mp4' ,'MAT-50 3')" />
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C4_2_eval_0137_mismatched.mp4' ,'MA-50 3')" />
     </td>
     <td>
-      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C4_2_eval_0137_mismatched.mp4' ,'MAT-500 3')" />
+      <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C4_2_eval_0137_mismatched.mp4' ,'MA-500 3')" />
     </td>
     <td>
       <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/SM_500_C4_2_eval_0137_matched.mp4', 'stimuli/speech-and-gesture/SM_500_C4_2_eval_0137_mismatched.mp4' ,'SM-500 3')" />
@@ -638,10 +641,10 @@ Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight:
         <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/DIFF_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/DIFF_C4_2_eval_0011_mismatched.mp4' ,'DIFF 4')" />
       </td>
       <td>
-        <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C4_2_eval_0011_mismatched.mp4' ,'MAT-50 4')" />
+        <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_50_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/MAT_50_C4_2_eval_0011_mismatched.mp4' ,'MA-50 4')" />
       </td>
       <td>
-        <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C4_2_eval_0011_mismatched.mp4' ,'MAT-500 4')" />
+        <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/MAT_500_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/MAT_500_C4_2_eval_0011_mismatched.mp4' ,'MA-500 4')" />
       </td>
       <td>
         <img src="images/play_button.png" height=40 onclick="play_speech_and_gesture_eval('stimuli/speech-and-gesture/SM_500_C4_2_eval_0011_matched.mp4', 'stimuli/speech-and-gesture/SM_500_C4_2_eval_0011_mismatched.mp4' ,'SM-500 4')" />
