@@ -209,7 +209,7 @@ td img {
 
 </script>
 
-## Stimuli from the evaluation test
+## Example stimuli from the evaluation
 
 ### Speech-only evaluation
 
@@ -241,7 +241,7 @@ Currently loaded stimulus: <span id="audio-stimuli-from-listening-test-span" sty
     <tr>
       <th class="tg-0pky">Solver steps</th>
       <th class="tg-0pky">-</th>
-      <th class="tg-0pky">50 & 500</th>
+      <th class="tg-0pky">50</th>
       <th class="tg-0pky">50</th>
       <th class="tg-0pky">500</th>
       <th class="tg-0pky">50</th>
@@ -387,13 +387,13 @@ Currently loaded: <span id="playing-gesture-only" style="font-weight: bold;" > M
       <th class="tg-0pky">Text prompt #</th>
       <th class="tg-0pky">NAT</th>
       <th class="tg-0pky">DIFF</th>
-      <th class="tg-0pky" colspan="2">MAT</th>
+      <th class="tg-0pky" colspan="2">MA</th>
       <th class="tg-0pky" colspan="2">SM</th>
     </tr>
     <tr>
       <th class="tg-0pky">Solver steps</th>
       <th class="tg-0pky">-</th>
-      <th class="tg-0pky">50 & 500</th>
+      <th class="tg-0pky">500</th>
       <th class="tg-0pky">50</th>
       <th class="tg-0pky">500</th>
       <th class="tg-0pky">50</th>
@@ -565,7 +565,7 @@ Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight:
       <th class="tg-0pky">Text prompt #</th>
       <th class="tg-0pky">NAT</th>
       <th class="tg-0pky">DIFF</th>
-      <th class="tg-0pky" colspan="2">MAT</th>
+      <th class="tg-0pky" colspan="2">MA</th>
       <th class="tg-0pky">SM</th>
     </tr>
     <tr>
