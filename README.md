@@ -46,7 +46,7 @@ Please check out the examples below and [read our arXiv preprint for more detail
 [simon_profile]: https://www.kth.se/profile/simonal
 [gustav_profile]: https://people.kth.se/~ghe/
 [this_page]: https://shivammehta25.github.io/Match-TTSG
-[arxiv_link]: https://arxiv.org
+[arxiv_link]: https://arxiv.org/abs/2310.05181
 [github_link]: https://github.com/shivammehta25/Match-TTSG
 [lipman_et_al]: https://arxiv.org/abs/2210.02747
 [liu_et_al]: https://arxiv.org/abs/2209.03003
