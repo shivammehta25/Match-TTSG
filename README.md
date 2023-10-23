@@ -653,6 +653,94 @@ Currently loaded: <span id="playing-speech-and-gesture-span" style="font-weight:
 </tbody>
 </table>
 
+### Faster synthesis speed for long utterances
+
+<script>
+  transcript_long = {
+    '1': "The sun slowly rises. Casting a golden hue upon the tranquil landscape. Birds chirp melodiously welcoming the dawn. Nature awakens with a gentle breeze rustling through the leaves creating a harmonious symphony of life. This mesmerizing moment is a reminder that nature's beauty is eternal, an ever-repeating masterpiece that never fails to captivate our senses. As the sun continues its ascent, the world beneath its warm embrace stirs to life. The meandering river, once shrouded in darkness, now glistens like liquid gold, reflecting the radiant morning sky.  Each ripple seems to dance to its own rhythm, adding to the symphony of nature's awakening.",
+    '2': "A family of deer emerges from the edge of the forest, their graceful movements and gentle presence a testament to the peacefulness of this moment. They graze on dew-kissed grass, seemingly undisturbed by the world around them, basking in the serenity of the dawn. The gentle breeze, like a conductor, orchestrates the rustling leaves into a harmonious melody. Each tree, with its own unique voice, contributes to this symphony of life, a testament to the interconnectedness of all living things. In this timeless tableau, the world awakens with a sense of renewal, as if each day is a chance for nature to paint a new masterpiece and for us to witness its beauty. It's a reminder that amidst the hustle and bustle of our lives, there is solace in the simple yet profound beauty of a sunrise, a reminder to pause and appreciate the magic that unfolds each morning.",
+    '3': "A family of rabbits ventures out of their burrow, cautiously exploring the world as they munch on fresh blades of grass. Squirrels scurry along the branches, carrying acorns to their nests, while a red fox, sleek and silent, makes its way through the underbrush, ever watchful for an opportunity to seize the day's first meal. The symphony of life continues to evolve. In the distance, a gentle stream trickles through the rocks, a soft and soothing background melody. Dragonflies dart and swirl above the water's surface, their iridescent wings catching the light, adding to the enchantment of the scene. As the sun rises higher, the tranquil landscape begins to stir with increasing vitality."
+  }
+</script>
+
+Currently loaded stimulus: <span id="audio-long-sentence-span" style="font-weight: bold;"> MA-50 </span>
+
+<p>Audio player: </p>
+  <audio id="audio-long-sentence" controls>
+    <source id="audio-long-sentence-src" src="stimuli/long-sentences/MA-50-1.wav" type="audio/wav">
+  </audio>
+
+<p> Transcription: </p>
+<blockquote style="height: 150px">
+  <p id="audio-long-sentence-transcript">
+    The sun slowly rises. Casting a golden hue upon the tranquil landscape. Birds chirp melodiously welcoming the dawn. Nature awakens with a gentle breeze rustling through the leaves creating a harmonious symphony of life. This mesmerizing moment is a reminder that nature's beauty is eternal, an ever-repeating masterpiece that never fails to captivate our senses. As the sun continues its ascent, the world beneath its warm embrace stirs to life. The meandering river, once shrouded in darkness, now glistens like liquid gold, reflecting the radiant morning sky.  Each ripple seems to dance to its own rhythm, adding to the symphony of nature's awakening.
+  </p>
+</blockquote>
+
+<table class="tg">
+  <thead>
+    <tr>
+      <th class="tg-0pky">Condition</th>
+      <th class="tg-0pky" colspan="2">MA-50</th>
+      <th class="tg-0pky" colspan="2">SM-50</th>
+    </tr>
+    <tr>
+      <th class="tg-0pky">Text prompt #</th>
+      <th class="tg-0pky">Audio</th>
+      <th class="tg-0pky">RTF</th>
+      <th class="tg-0pky">Audio</th>
+      <th class="tg-0pky">RTF</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+        <td>1</td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/long-sentences/MA-50-1.wav', 'audio-long-sentence', 'MA-50 , Sentence 1', transcript_long[1])"/>
+        </td>
+        <td>
+          0.0221
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/long-sentences/SM-50-1.wav', 'audio-long-sentence', 'SM-50 , Sentence 1', transcript_long[1])"/>
+        </td>
+        <td>
+          0.1311
+        </td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/long-sentences/MA-50-2.wav', 'audio-long-sentence', 'MA-50 , Sentence 2', transcript_long[2])"/>
+        </td>
+        <td>
+          0.0213
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/long-sentences/SM-50-2.wav', 'audio-long-sentence', 'SM-50 , Sentence 2', transcript_long[2])"/> 
+        </td>
+        <td>
+          0.1287
+        </td>
+    </tr>
+    <tr>
+        <td>2</td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/long-sentences/MA-50-3.wav', 'audio-long-sentence', 'MA-50 , Sentence 3', transcript_long[3])"/>
+        </td>
+        <td>
+          0.0242
+        </td>
+        <td>
+          <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/long-sentences/SM-50-3.wav', 'audio-long-sentence', 'SM-50 , Sentence 3', transcript_long[3])"/>  
+        </td>
+        <td>
+          0.1304
+        </td>
+    </tr>
+  </tbody>
+</table>
+
 <!-- Comment to rebuild this -->
 
-[![Match-TTSG](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://shivammehta25.github.io/Match-TTSG&count_bg=%23409CFF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Match-TTSG&edge_flat=false)][this_page]
+<!-- [![Match-TTSG](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://shivammehta25.github.io/Match-TTSG&count_bg=%23409CFF&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=Match-TTSG&edge_flat=false)][this_page] -->
