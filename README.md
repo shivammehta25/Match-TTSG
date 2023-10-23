@@ -671,7 +671,7 @@ Currently loaded stimulus: <span id="audio-long-sentence-span" style="font-weigh
   </audio>
 
 <p> Transcription: </p>
-<blockquote style="height: 150px">
+<blockquote style="height: 200px">
   <p id="audio-long-sentence-transcript">
     The sun slowly rises. Casting a golden hue upon the tranquil landscape. Birds chirp melodiously welcoming the dawn. Nature awakens with a gentle breeze rustling through the leaves creating a harmonious symphony of life. This mesmerizing moment is a reminder that nature's beauty is eternal, an ever-repeating masterpiece that never fails to captivate our senses. As the sun continues its ascent, the world beneath its warm embrace stirs to life. The meandering river, once shrouded in darkness, now glistens like liquid gold, reflecting the radiant morning sky.  Each ripple seems to dance to its own rhythm, adding to the symphony of nature's awakening.
   </p>
