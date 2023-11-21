@@ -724,7 +724,7 @@ Currently loaded stimulus: <span id="audio-long-sentence-span" style="font-weigh
         </td>
     </tr>
     <tr>
-        <td>2</td>
+        <td>3</td>
         <td>
           <img src="images/play_button.png" height=40 style="cursor: pointer;" onclick="play_audio('stimuli/long-sentences/MA-50-3.wav', 'audio-long-sentence', 'MA-50 , Sentence 3', transcript_long[3])"/>
         </td>
