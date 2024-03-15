@@ -1,0 +1,18 @@
+defaults:
+  - _self_
+  - encoder: default.yaml
+  - decoder: default.yaml
+  - cfm: default.yaml
+  - optimizer: adam.yaml
+
+_target_: match_ttsg.models.match_ttsg.MatchTTSG
+n_vocab: 178
+n_spks: ${data.n_spks}
+spk_emb_dim: 64
+n_feats: ${data.n_feats}
+n_motions: ${data.n_motions}
+data_statistics: ${data.data_statistics}
+out_size: null # Must be divisible by 4
+align_with_motion: True
+motion_prior_loss: True
+prior_loss: true

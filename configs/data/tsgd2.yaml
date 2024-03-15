@@ -1,0 +1,26 @@
+_target_: match_ttsg.data.text_mel_motion_datamodule.TextMelMotionDataModule
+name: TSGD2 
+train_filelist_path: data/filelists/tsg2_train.txt
+valid_filelist_path: data/filelists/tsg2_val.txt
+batch_size: 32
+num_workers: 20
+n_spks: 1
+pin_memory: True
+cleaners: [english_cleaners2]
+motion_folder: data/cormac/processed_sm0_0_86fps
+add_blank: True
+n_fft: 1024
+n_feats: 80
+n_motions: 45
+sample_rate: 22050
+hop_length: 256
+win_length: 1024
+f_min: 0
+f_max: 8000
+data_statistics:  # Computed for tsg2 dataset
+  mel_mean: -5.536622
+  mel_std: 2.116101
+  motion_mean: 0.072936
+  motion_std: 0.501975
+motion_pipeline_filename: data_pipe.expmap_86.1328125fps.sav 
+seed: ${seed}
