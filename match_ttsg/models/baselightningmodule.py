@@ -11,6 +11,7 @@ from lightning import LightningModule
 from lightning.pytorch.utilities import grad_norm
 
 from match_ttsg import utils
+from match_ttsg.utils.model import denormalize, normalize
 from match_ttsg.utils.utils import plot_tensor
 
 log = utils.get_pylogger(__name__)
@@ -19,17 +20,32 @@ log = utils.get_pylogger(__name__)
 class BaseLightningClass(LightningModule, ABC):
     def update_data_statistics(self, data_statistics):
         if data_statistics is None:
-            data_statistics = {
-                'mel_mean': 0.0,
-                'mel_std': 1.0,
-                'motion_mean': 0.0,
-                'motion_std': 1.0,
-            }
+           raise ValueError(f"data_statistics are not computed. \
+                             Please run python match_ttsg/utils/preprocess_data.py -i <dataset.yaml> \
+                             to get statistics and update them in data_statistics field.") 
 
         self.register_buffer('mel_mean', torch.tensor(data_statistics['mel_mean']))
         self.register_buffer('mel_std', torch.tensor(data_statistics['mel_std']))
+        
         self.register_buffer('motion_mean', torch.tensor(data_statistics['motion_mean']))
         self.register_buffer('motion_std', torch.tensor(data_statistics['motion_std']))
+        
+        self.register_buffer("pitch_mean", torch.tensor(data_statistics["pitch_mean"]))
+        self.register_buffer("pitch_std", torch.tensor(data_statistics["pitch_std"]))
+        
+        self.register_buffer("energy_mean", torch.tensor(data_statistics["energy_mean"]))
+        self.register_buffer("energy_std", torch.tensor(data_statistics["energy_std"]))
+        
+        
+        pitch_min = normalize(torch.tensor(data_statistics["pitch_min"]), self.pitch_mean, self.pitch_std)
+        pitch_max = normalize(torch.tensor(data_statistics["pitch_max"]), self.pitch_mean, self.pitch_std)
+        energy_min = normalize(torch.tensor(data_statistics["energy_min"]), self.energy_mean, self.energy_std)
+        energy_max = normalize(torch.tensor(data_statistics["energy_max"]), self.energy_mean, self.energy_std)
+        
+        self.register_buffer("pitch_min", pitch_min)
+        self.register_buffer("pitch_max", pitch_max)
+        self.register_buffer("energy_min", energy_min)
+        self.register_buffer("energy_max", energy_max)
 
     def configure_optimizers(self) -> Any:
         optimizer = self.hparams.optimizer(params=self.parameters())

@@ -45,3 +45,4 @@ seaborn
 piper_phonemize
 transforms3d
 ffmpeg-python
+pyworld

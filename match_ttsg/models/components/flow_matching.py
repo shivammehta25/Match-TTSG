@@ -30,7 +30,7 @@ class BASECFM(torch.nn.Module, ABC):
         self.estimator = None
 
     @torch.inference_mode()
-    def forward(self, mu, mask, n_timesteps, temperature=1.0, spks=None, cond=None):
+    def forward(self, mu, encoder_outputs, mask, n_timesteps, temperature=1.0, spks=None, cond=None):
         """Forward diffusion
 
         Args:
@@ -50,9 +50,9 @@ class BASECFM(torch.nn.Module, ABC):
         """
         z = torch.randn_like(mu) * temperature
         t_span = torch.linspace(0, 1, n_timesteps + 1, device=mu.device)
-        return self.solve_euler(z, t_span=t_span, mu=mu, mask=mask, spks=spks, cond=cond)
+        return self.solve_euler(z, t_span=t_span, encoder_outputs=encoder_outputs, mask=mask, spks=spks, cond=cond)
 
-    def solve_euler(self, x, t_span, mu, mask, spks, cond):
+    def solve_euler(self, x, t_span, encoder_outputs, mask, spks, cond):
         """
         Fixed euler solver for ODEs.
         Args:
@@ -74,7 +74,7 @@ class BASECFM(torch.nn.Module, ABC):
         sol = []
 
         for step in range(1, len(t_span)):
-            dphi_dt = self.estimator(x, mask, mu, t, spks, cond)
+            dphi_dt = self.estimator(x, mask, encoder_outputs, t, spks, cond)
 
             x = x + dt * dphi_dt
             t = t + dt
@@ -84,7 +84,7 @@ class BASECFM(torch.nn.Module, ABC):
 
         return sol[-1]
 
-    def compute_loss(self, x1, mask, mu, spks=None, cond=None):
+    def compute_loss(self, x1, mask, encoder_outputs, spks=None, cond=None):
         """Computes diffusion loss
 
         Args:
@@ -102,17 +102,17 @@ class BASECFM(torch.nn.Module, ABC):
             y: conditional flow
                 shape: (batch_size, n_feats, mel_timesteps)
         """
-        b, _, t = mu.shape
+        b, _, t = encoder_outputs.shape
 
         # random timestep
-        t = torch.rand([b, 1, 1], device=mu.device, dtype=mu.dtype)
+        t = torch.rand([b, 1, 1], device=encoder_outputs.device, dtype=encoder_outputs.dtype)
         # sample noise p(x_0)
         z = torch.randn_like(x1)
 
         y = (1 - (1 - self.sigma_min) * t) * z + t * x1
         u = x1 - (1 - self.sigma_min) * z
 
-        loss = F.mse_loss(self.estimator(y, mask, mu, t.squeeze(), spks), u, reduction="sum") / (
+        loss = F.mse_loss(self.estimator(y, mask, encoder_outputs, t.squeeze(), spks), u, reduction="sum") / (
             torch.sum(mask) * u.shape[1]
         )
         return loss, y

@@ -4,12 +4,14 @@ import random
 
 import torch
 from einops import pack
+from omegaconf.listconfig import ListConfig
 
 import match_ttsg.utils.monotonic_align as monotonic_align
 from match_ttsg import utils
 from match_ttsg.models.baselightningmodule import BaseLightningClass
 from match_ttsg.models.components.flow_matching import CFM
 from match_ttsg.models.components.text_encoder import TextEncoder
+from match_ttsg.models.components.variance_predictors import DP
 from match_ttsg.utils.model import (denormalize, duration_loss,
                                     fix_len_compatibility, generate_path,
                                     sequence_mask)
@@ -27,6 +29,7 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         n_motions,
         encoder,
         decoder,
+        duration_predictor,
         cfm,
         data_statistics,
         out_size,
@@ -49,12 +52,14 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         self.prior_loss = prior_loss
         self.align_with_motion = align_with_motion
         self.motion_prior_loss = motion_prior_loss
+        self.update_data_statistics(data_statistics)
+
 
         if n_spks > 1:
             self.spk_emb = torch.nn.Embedding(n_spks, spk_emb_dim)
             
         
-        if isinstance(encoder.encoder_params.n_feats, list):
+        if isinstance(encoder.encoder_params.n_feats, (list, ListConfig)):
             encoder.encoder_params.n_feats = sum(encoder.encoder_params.n_feats)
 
         self.encoder = TextEncoder(
@@ -65,9 +70,11 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             n_spks,
             spk_emb_dim,
         )
+        
+        self.dp = DP(duration_predictor)
 
         self.decoder = CFM(
-            in_channels=2 * encoder.encoder_params.n_feats,
+            in_channels=encoder.encoder_params.n_feats + encoder.encoder_params.n_channels,
             out_channel=encoder.encoder_params.n_feats,
             cfm_params=cfm,
             decoder_params=decoder,
@@ -75,10 +82,9 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             spk_emb_dim=spk_emb_dim,
         )
 
-        self.update_data_statistics(data_statistics)
 
     @torch.inference_mode()
-    def synthesise(self, x, x_lengths, n_timesteps, temperature=1.0, spks=None, length_scale=1.0):
+    def synthesise(self, x, x_lengths, n_timesteps, temperature=1.0, spks=None, length_scale=1.0, dur_n=None):
         """
         Generates mel-spectrogram from text. Returns:
             1. encoder outputs
@@ -120,7 +126,10 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             spks = self.spk_emb(spks.long())
 
         # Get encoder_outputs `mu_x` and log-scaled token durations `logw`
-        mu_x, logw, x_mask = self.encoder(x, x_lengths, spks)
+        mu_x, enc_output, x_mask = self.encoder(x, x_lengths, spks)
+
+        # Get log-scaled token durations `logw`
+        logw = self.dp(enc_output, x_mask, n_timesteps=dur_n)
 
         w = torch.exp(logw) * x_mask
         w_ceil = torch.ceil(w) * length_scale
@@ -137,9 +146,10 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         mu_y = torch.matmul(attn.squeeze(1).transpose(1, 2), mu_x.transpose(1, 2))
         mu_y = mu_y.transpose(1, 2)
         encoder_outputs = mu_y[:, :, :y_max_length]
+        upsampled_enc_outputs = torch.matmul(attn.squeeze(1).transpose(1, 2), enc_output.transpose(1, 2)).transpose(1, 2)
 
         # Generate sample tracing the probability flow
-        decoder_outputs = self.decoder(mu_y, y_mask, n_timesteps, temperature, spks)
+        decoder_outputs = self.decoder(mu_y, upsampled_enc_outputs, y_mask, n_timesteps, temperature, spks)
         decoder_outputs = decoder_outputs[:, :, :y_max_length]
 
         t = (dt.datetime.now() - t).total_seconds()
@@ -189,7 +199,7 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             spks = self.spk_emb(spks)
 
         # Get encoder_outputs `mu_x` and log-scaled token durations `logw`
-        mu_x, logw, x_mask = self.encoder(x, x_lengths, spks)
+        mu_x, enc_output, x_mask = self.encoder(x, x_lengths, spks)
         y_max_length = y.shape[-1]
 
         y_mask = sequence_mask(y_lengths, y_max_length).unsqueeze(1).to(x_mask)
@@ -217,8 +227,8 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         # Compute loss between predicted log-scaled durations and those obtained from MAS
         # refered to as prior loss in the paper
         logw_ = torch.log(1e-8 + torch.sum(attn.unsqueeze(1), -1)) * x_mask
-        dur_loss = duration_loss(logw, logw_, x_lengths)
-        
+        dur_loss = self.dp.compute_loss(logw_, enc_output, x_mask)        
+
         if not self.align_with_motion:
             y = pack([y, y_motion], "b * t")[0]
 
@@ -252,9 +262,11 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         # Align encoded text with mel-spectrogram and get mu_y segment
         mu_y = torch.matmul(attn.squeeze(1).transpose(1, 2), mu_x.transpose(1, 2))
         mu_y = mu_y.transpose(1, 2)
+        upsampled_enc_outputs = torch.matmul(attn.squeeze(1).transpose(1, 2), enc_output.transpose(1, 2)).transpose(1, 2)
+
 
         # Compute loss of the decoder
-        diff_loss, _ = self.decoder.compute_loss(x1=y, mask=y_mask, mu=mu_y, spks=spks, cond=cond)
+        diff_loss, _ = self.decoder.compute_loss(x1=y, mask=y_mask, encoder_outputs=upsampled_enc_outputs, spks=spks, cond=cond)
         
         if not self.motion_prior_loss:
             y, mu_y = y[:, : self.n_feats, :], mu_y[:, : self.n_feats, :]

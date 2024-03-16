@@ -35,7 +35,7 @@ setup(
     # use this to customize global commands available in the terminal after installing the package
     entry_points={
         "console_scripts": [
-            "match_ttsg-data-stats=match_ttsg.utils.generate_data_statistics:main",
+            "match_ttsg-data-stats=match_ttsg.utils.preprocess_data:main",
             "match_ttsg-tts=match_ttsg.cli:cli",
             "match_ttsg-tts-app=match_ttsg.app:main",
         ]

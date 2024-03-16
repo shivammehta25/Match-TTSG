@@ -1,5 +1,5 @@
 _target_: match_ttsg.data.text_mel_motion_datamodule.TextMelMotionDataModule
-name: TSGD2 
+name: tsgd2
 train_filelist_path: data/filelists/tsg2_train.txt
 valid_filelist_path: data/filelists/tsg2_val.txt
 batch_size: 32
@@ -18,9 +18,18 @@ win_length: 1024
 f_min: 0
 f_max: 8000
 data_statistics:  # Computed for tsg2 dataset
-  mel_mean: -5.536622
-  mel_std: 2.116101
-  motion_mean: 0.072936
-  motion_std: 0.501975
+  pitch_min: 60.576588
+  pitch_max: 872.822083
+  pitch_mean: 152.241898
+  pitch_std: 39.588459
+  energy_min: 0.013238
+  energy_max: 237.996811
+  energy_mean: 21.58687
+  energy_std: 23.083025
+  mel_mean: -5.540806
+  mel_std: 2.116675
+  motion_mean: -0.464329 
+  motion_std: 0.576328
 motion_pipeline_filename: data_pipe.expmap_86.1328125fps.sav 
 seed: ${seed}
+generate_properties: false

@@ -4,25 +4,29 @@ from typing import Any, Dict, Optional
 
 import numpy as np
 import pandas as pd
+import pyworld as pw
 import torch
 import torch.nn.functional as F
 import torchaudio as ta
-from einops import rearrange
 from lightning import LightningDataModule
+from scipy.interpolate import interp1d
 from torch.utils.data.dataloader import DataLoader
-from tqdm.auto import tqdm
 
-from match_ttsg.data.text_mel_datamodule import parse_filelist
 from match_ttsg.text import text_to_sequence
-from match_ttsg.text.symbols import symbols
 from match_ttsg.utils.audio import mel_spectrogram
 from match_ttsg.utils.model import fix_len_compatibility, normalize
 from match_ttsg.utils.pylogger import get_pylogger
-from match_ttsg.utils.utils import intersperse
+from match_ttsg.utils.utils import (intersperse, to_torch,
+                                    trim_or_pad_to_target_length)
 
 log = get_pylogger(__name__)
 
-        
+
+def parse_filelist(filelist_path, split_char="|"):
+    with open(filelist_path, encoding="utf-8") as f:
+        filepaths_and_text = [line.strip().split(split_char) for line in f]
+    return filepaths_and_text
+ 
     
 
 class TextMelMotionDataModule(LightningDataModule):
@@ -49,7 +53,8 @@ class TextMelMotionDataModule(LightningDataModule):
         f_max,
         data_statistics,
         motion_pipeline_filename,
-        seed
+        seed,
+        generate_properties,
     ):
         super().__init__()
 
@@ -81,6 +86,7 @@ class TextMelMotionDataModule(LightningDataModule):
             self.hparams.f_max,
             self.hparams.data_statistics,
             self.hparams.seed,
+            self.hparams.generate_properties,
         )
         self.validset = TextMelMotionDataset(
             self.hparams.name,
@@ -98,6 +104,7 @@ class TextMelMotionDataModule(LightningDataModule):
             self.hparams.f_max,
             self.hparams.data_statistics,
             self.hparams.seed,
+            self.hparams.generate_properties,
         )
         
 
@@ -135,14 +142,30 @@ class TextMelMotionDataModule(LightningDataModule):
 
 
 class TextMelMotionDataset(torch.utils.data.Dataset):
-    def __init__(self, name, filelist_path, n_spks, cleaners, motion_folder, add_blank=True,
-                 n_fft=1024, n_mels=80, sample_rate=22050,
-                 hop_length=256, win_length=1024, f_min=0., f_max=8000, data_parameters=None, seed=None):
+    def __init__(
+        self,
+        name,
+        filelist_path,
+        n_spks,
+        cleaners,
+        motion_folder,
+        add_blank=True,
+        n_fft=1024,
+        n_mels=80,
+        sample_rate=22050,
+        hop_length=256,
+        win_length=1024,
+        f_min=0.0,
+        f_max=8000,
+        data_statistics=None,
+        seed=None,
+        generate_properties=False,
+    ):
         self.name = name
         self.filepaths_and_text = parse_filelist(filelist_path)
         self.n_spks = n_spks
         self.filelist_path = Path(filelist_path)
-        self.motion_fileloc = Path(motion_folder)        
+        self.motion_fileloc = Path(motion_folder)
         self.cleaners = cleaners
         self.add_blank = add_blank
         self.n_fft = n_fft
@@ -152,16 +175,32 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
         self.win_length = win_length
         self.f_min = f_min
         self.f_max = f_max
-        
-        if data_parameters is not None:
-            self.data_parameters = data_parameters
+        self.generate_properties = generate_properties
+        self.processed_folder_path = self.motion_fileloc.parent 
+
+        if data_statistics is not None:
+            self.data_statistics = data_statistics
         else:
-            self.data_parameters = { 'mel_mean': 0, 'mel_std': 1, 'motion_mean': 0, 'motion_std': 1 }
+            self.data_statistics = {
+                'pitch_mean': 0,
+                'pitch_std': 1,
+                'energy_mean': 0,
+                'energy_std': 1,
+                'mel_mean': 0,
+                'mel_std': 1,
+                'motion_mean': 0,
+                'motion_std': 1,
+                'pitch_min': None,
+                'pitch_max': None,
+                'energy_min': None,
+                'energy_max': None,
+            }
         random.seed(seed)
         random.shuffle(self.filepaths_and_text)
+        
 
 
-    def get_pair(self, filepath_and_text):
+    def get_data(self, filepath_and_text):
         if self.n_spks > 1:
             filepath, spk, text = (
                 filepath_and_text[0],
@@ -170,18 +209,32 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
             )
         else:
             filepath, text = filepath_and_text[0], filepath_and_text[1]
-            spk = None
+            spk = None    
 
         processed_text = self.get_text(text, add_blank=self.add_blank)
-        mel = self.get_mel(filepath)
+        
+        if self.generate_properties:
+            mel, energy = self.get_mel(filepath)
+            pitch = self.get_pitch(filepath, mel.shape[1])
+        else: 
+            mel = np.load(self.processed_folder_path / 'mel' / Path(Path(filepath).stem).with_suffix(".npy"))
+            mel = normalize(mel, self.data_statistics['mel_mean'], self.data_statistics['mel_std'])
+            pitch = np.load(self.processed_folder_path / 'pitch' / Path(Path(filepath).stem).with_suffix(".npy"))
+            pitch = normalize(pitch, self.data_statistics['pitch_mean'], self.data_statistics['pitch_std'])
+            energy = np.load(self.processed_folder_path / 'energy' / Path(Path(filepath).stem).with_suffix(".npy"))
+            energy = normalize(energy, self.data_statistics['energy_mean'], self.data_statistics['energy_std'])
+
         motion = self.get_motion(filepath, mel.shape[1])
         
         return {
             'y': mel,
             'x': processed_text,
             'y_motion': motion,
+            "pitch": pitch,
+            "energy": energy,
             'text': text,
-            'spk': spk
+            'spk': spk,
+            'filepath': filepath
         }
 
     
@@ -189,16 +242,42 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
         file_loc = self.motion_fileloc / Path(Path(filename).name).with_suffix(ext)
         motion = torch.from_numpy(pd.read_pickle(file_loc).to_numpy())
         motion = F.interpolate(motion.T.unsqueeze(0), mel_shape).squeeze(0)
-        motion = normalize(motion, self.data_parameters['motion_mean'], self.data_parameters['motion_std'])
+        motion = normalize(motion, self.data_statistics['motion_mean'], self.data_statistics['motion_std'])
         return motion 
 
     def get_mel(self, filepath):
         audio, sr = ta.load(filepath)
         assert sr == self.sample_rate
-        mel = mel_spectrogram(audio, self.n_fft, 80, self.sample_rate, self.hop_length,
-                              self.win_length, self.f_min, self.f_max, center=False).squeeze()
-        mel = normalize(mel, self.data_parameters['mel_mean'], self.data_parameters['mel_std'])
-        return mel
+        mel, energy = mel_spectrogram(audio, self.n_fft, self.n_mels, self.sample_rate, self.hop_length,
+                              self.win_length, self.f_min, self.f_max, center=False)
+        
+        return mel.squeeze(0), energy.squeeze(0)
+    
+    def get_pitch(self, filepath, mel_length):
+        _waveform, _sr = ta.load(filepath)
+        _waveform = _waveform.squeeze(0).double().numpy() 
+        assert _sr == self.sample_rate, f"Sample rate mismatch => Found: {_sr} != {self.sample_rate} = Expected"
+        
+        pitch, t = pw.dio(
+            _waveform, self.sample_rate, frame_period=self.hop_length / self.sample_rate * 1000
+        )
+        pitch = pw.stonemask(_waveform, pitch, t, self.sample_rate)
+        # A cool function taken from fairseq 
+        # https://github.com/facebookresearch/fairseq/blob/3f0f20f2d12403629224347664b3e75c13b2c8e0/examples/speech_synthesis/data_utils.py#L99
+        pitch = trim_or_pad_to_target_length(pitch,mel_length) 
+        
+        # Interpolate to cover the unvoiced segments as well 
+        nonzero_ids = np.where(pitch != 0)[0]
+
+        interp_fn = interp1d(
+                nonzero_ids,
+                pitch[nonzero_ids],
+                fill_value=(pitch[nonzero_ids[0]], pitch[nonzero_ids[-1]]),
+                bounds_error=False,
+            )
+        pitch = interp_fn(np.arange(0, len(pitch)))
+        
+        return pitch
 
     def get_text(self, text, add_blank=True):
         text_norm = text_to_sequence(text, self.cleaners)
@@ -208,7 +287,7 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
         return text_norm
 
     def __getitem__(self, index):
-        return self.get_pair(self.filepaths_and_text[index])
+        return self.get_data(self.filepaths_and_text[index])
 
     def __len__(self):
         return len(self.filepaths_and_text)
@@ -237,16 +316,22 @@ class TextMelMotionBatchCollate:
         x = torch.zeros((B, x_max_length), dtype=torch.long)
         y_motion = torch.zeros((B, n_motion, y_max_length), dtype=torch.float32)
         y_lengths, x_lengths = [], []
-        texts, spks = [], []
+        texts, filepaths = [], []
+        spks = []
+        pitches = torch.zeros((B, y_max_length), dtype=torch.float32)
+        energies = torch.zeros((B, y_max_length), dtype=torch.float32)
 
         for i, item in enumerate(batch):
             y_, x_, y_motion_ = item['y'], item['x'], item['y_motion']
             y_lengths.append(y_.shape[-1])
             x_lengths.append(x_.shape[-1])
-            y[i, :, :y_.shape[-1]] = y_
+            y[i, :, :y_.shape[-1]] = to_torch(y_, torch.float)
             x[i, :x_.shape[-1]] = x_
             y_motion[i, :, :y_motion_.shape[-1]] = y_motion_
+            pitches[i, :y_.shape[-1]] = to_torch(item['pitch'], torch.float)
+            energies[i, :y_.shape[-1]] = to_torch(item['energy'], torch.float)
             texts.append(item['text'])
+            filepaths.append(item['filepath'])
             spks.append(item["spk"])
 
         y_lengths = torch.LongTensor(y_lengths)
@@ -260,67 +345,8 @@ class TextMelMotionBatchCollate:
             'y_lengths': y_lengths, 
             'y_motion': y_motion, 
             'texts': texts,
-            "spks": spks
-        }
-    
-    
-    
-class TextMelMotionData2VecBatchCollate:
-    def __init__(self, data2vec_hp) -> None:
-        self.modalities = set(modality for modality in data2vec_hp if data2vec_hp[modality])
-
-    
-    def __call__(self, batch):
-        B = len(batch)
-        y_max_length = max([item['y'].shape[-1] for item in batch])
-        y_max_length = fix_len_compatibility(y_max_length)
-        x_max_length = max([item['x'].shape[-1] for item in batch])
-        n_feats = batch[0]['y'].shape[-2]
-        n_motion = batch[0]['y_motion'].shape[-2]
-        max_data_2_vec_text = max([item['data2vec']['text'].shape[-1] for item in batch])
-        
-        if batch[0]['data2vec'] is not None:
-                conditioning_tensor = torch.zeros((B, batch[0]['data2vec']['text'].shape[0], max_data_2_vec_text))
-                conditioning_lengths = []
-        else:
-            conditioning_tensor = None
-            conditioning_lengths = None
-
-        y = torch.zeros((B, n_feats, y_max_length), dtype=torch.float32)
-        x = torch.zeros((B, x_max_length), dtype=torch.long)
-        
-        y_motion = torch.zeros((B, n_motion, y_max_length), dtype=torch.float32)
-        y_lengths, x_lengths = [], []
-        texts, tokenized_texts = [], []
-
-        for i, item in enumerate(batch):
-            y_, x_, y_motion_ = item['y'], item['x'], item['y_motion']
-            y_lengths.append(y_.shape[-1])
-            x_lengths.append(x_.shape[-1])
-            y[i, :, :y_.shape[-1]] = y_
-            x[i, :x_.shape[-1]] = x_
-            y_motion[i, :, :y_motion_.shape[-1]] = y_motion_
-            texts.append(item['text'])
-            
-            if batch[0]['data2vec'] is not None:
-                conditioning_lengths.append(item['data2vec']['text'].shape[-1])
-                conditioning_tensor[i, :, :conditioning_lengths[-1]] = item['data2vec']['text']
-                tokenized_texts.append(item['data2vec_tokenized_text'])
-
-        y_lengths = torch.LongTensor(y_lengths)
-        x_lengths = torch.LongTensor(x_lengths)
-        
-        if conditioning_lengths is not None:
-            conditioning_lengths = torch.LongTensor(conditioning_lengths)        
-        
-        return {
-            'x': x,
-            'x_lengths': x_lengths,
-            'y': y,
-            'y_lengths': y_lengths,
-            'y_motion': y_motion,
-            'cond': conditioning_tensor,
-            'cond_lengths': conditioning_lengths,
-            'texts': texts,
-            'tokenized_texts': tokenized_texts
+            "spks": spks,
+            'pitches': pitches,
+            'energies': energies,
+            'filepaths': filepaths
         }

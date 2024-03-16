@@ -2,6 +2,7 @@ defaults:
   - _self_
   - encoder: default.yaml
   - decoder: default.yaml
+  - duration_predictor: deterministic.yaml
   - cfm: default.yaml
   - optimizer: adam.yaml
 
