@@ -54,7 +54,8 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             self.spk_emb = torch.nn.Embedding(n_spks, spk_emb_dim)
             
         
-        encoder.encoder_params.n_feats = sum(encoder.encoder_params.n_feats)
+        if isinstance(encoder.encoder_params.n_feats, list):
+            encoder.encoder_params.n_feats = sum(encoder.encoder_params.n_feats)
 
         self.encoder = TextEncoder(
             encoder.encoder_type,
