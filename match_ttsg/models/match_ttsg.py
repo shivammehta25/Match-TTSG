@@ -141,6 +141,8 @@ class MatchTTSG(BaseLightningClass):  # 🍵
 
         # Get log-scaled token durations `logw`
         logw = self.dp(enc_output, x_mask, n_timesteps=dur_n)
+        
+
 
         w = torch.exp(logw) * x_mask
         w_ceil = torch.ceil(w) * length_scale
@@ -152,16 +154,18 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         y_mask = sequence_mask(y_lengths, y_max_length_).unsqueeze(1).to(x_mask.dtype)
         attn_mask = x_mask.unsqueeze(-1) * y_mask.unsqueeze(2)
         attn = generate_path(w_ceil.squeeze(1), attn_mask.squeeze(1)).unsqueeze(1)
+        
+        enc_output, prosody_outputs = self.prosody_predictors.synthesise(enc_output, w_ceil, x_mask, spks)
+
 
         # Align encoded text and get mu_y
         mu_y = torch.matmul(attn.squeeze(1).transpose(1, 2), mu_x.transpose(1, 2))
         mu_y = mu_y.transpose(1, 2)
         encoder_outputs = mu_y[:, :, :y_max_length]
         upsampled_enc_outputs = torch.matmul(attn.squeeze(1).transpose(1, 2), enc_output.transpose(1, 2)).transpose(1, 2)
-        prosody_outputs = self.prosody_predictors.synthesise(upsampled_enc_outputs, y_mask, spks)
 
         # Generate sample tracing the probability flow
-        decoder_outputs = self.decoder(mu_y, prosody_outputs["enc_outputs"], y_mask, n_timesteps, temperature, spks)
+        decoder_outputs = self.decoder(mu_y, upsampled_enc_outputs, y_mask, n_timesteps, temperature, spks)
         decoder_outputs = decoder_outputs[:, :, :y_max_length]
 
         t = (dt.datetime.now() - t).total_seconds()
@@ -242,6 +246,10 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         # refered to as prior loss in the paper
         logw_ = torch.log(1e-8 + torch.sum(attn.unsqueeze(1), -1)) * x_mask
         dur_loss = self.dp.compute_loss(logw_, enc_output, x_mask) 
+        
+        # Add prosody predictors
+        enc_output, loss = self.prosody_predictors(enc_output, x_mask, attn.sum(2), pitch, energy, spks)
+
 
         if not self.align_with_motion:
             y = pack([y, y_motion], "b * t")[0]
@@ -257,8 +265,6 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             ).to(y_lengths)
             attn_cut = torch.zeros(attn.shape[0], attn.shape[1], out_size, dtype=attn.dtype, device=attn.device)
             y_cut = torch.zeros(y.shape[0], self.n_feats, out_size, dtype=y.dtype, device=y.device)
-            pitch_cut = torch.zeros(y.shape[0], out_size)
-            energy_cut = torch.zeros(y.shape[0], out_size)
 
             y_cut_lengths = []
             for i, (y_, out_offset_) in enumerate(zip(y, out_offset)):
@@ -267,8 +273,6 @@ class MatchTTSG(BaseLightningClass):  # 🍵
                 cut_lower, cut_upper = out_offset_, out_offset_ + y_cut_length
                 y_cut[i, :, :y_cut_length] = y_[:, cut_lower:cut_upper]
                 attn_cut[i, :, :y_cut_length] = attn[i, :, cut_lower:cut_upper]
-                pitch_cut[i, :y_cut_length] = pitch[i, cut_lower:cut_upper]
-                energy_cut[i, :y_cut_length] = energy[i, cut_lower:cut_upper]
 
             y_cut_lengths = torch.LongTensor(y_cut_lengths)
             y_cut_mask = sequence_mask(y_cut_lengths).unsqueeze(1).to(y_mask)
@@ -276,18 +280,12 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             attn = attn_cut
             y = y_cut
             y_mask = y_cut_mask
-            pitch = pitch_cut
-            energy = energy_cut
 
         # Align encoded text with mel-spectrogram and get mu_y segment
         mu_y = torch.matmul(attn.squeeze(1).transpose(1, 2), mu_x.transpose(1, 2))
         mu_y = mu_y.transpose(1, 2)
         upsampled_enc_outputs = torch.matmul(attn.squeeze(1).transpose(1, 2), enc_output.transpose(1, 2)).transpose(1, 2)
         
-        # Compute loss of the prosody predictors
-        upsampled_enc_outputs, loss = self.prosody_predictors(upsampled_enc_outputs, y_mask, pitch, energy, spks)
-
-
         # Compute loss of the decoder
         diff_loss, _ = self.decoder.compute_loss(x1=y, mask=y_mask, encoder_outputs=upsampled_enc_outputs, spks=spks, cond=cond)
         

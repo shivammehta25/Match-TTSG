@@ -5,7 +5,8 @@ from einops import pack, rearrange
 
 from match_ttsg.models.components.decoder import (SinusoidalPosEmb,
                                                   TimestepEmbedding)
-from match_ttsg.models.components.text_encoder import Encoder, LayerNorm
+from match_ttsg.models.components.text_encoder import LayerNorm
+from match_ttsg.utils.model import average_over_durations, expand_lengths
 
 # Define available networks
 
@@ -262,29 +263,18 @@ class ProsodyPredictors(nn.Module):
         self.n_spks = n_spks
         self.name = params.name
         
-        if params.name == "transformer":
-        
-            self.transformer = Encoder(
-                params.n_channels + (spk_emb_dim if n_spks > 1 else 0),
-                params.filter_channels,
-                params.n_heads,
-                params.n_layers,
-                params.kernel_size,
-                params.p_dropout,
-            )
-
-            self.projection = nn.Sequential(
-                nn.Mish(),
-                nn.Dropout(params.p_dropout),
-                nn.Conv1d(params.n_channels, 2, 1) # One for pitch and one for energy
-            )
-        elif params.name == "deterministic":
-            self.predictor = DurationPredictorNetwork(
+        if params.name == "deterministic":
+            self.pitch_predictor = DurationPredictorNetwork(
                 params.n_channels + (spk_emb_dim if n_spks > 1 else 0),
                 params.filter_channels,
                 params.kernel_size,
-                params.p_dropout,
-                out=2
+                params.p_dropout
+            )
+            self.energy_predictor = DurationPredictorNetwork(
+                params.n_channels + (spk_emb_dim if n_spks > 1 else 0),
+                params.filter_channels,
+                params.kernel_size,
+                params.p_dropout
             )
         else:
             raise ValueError(f"Invalid prosody predictor configuration: {params.name}")
@@ -299,38 +289,28 @@ class ProsodyPredictors(nn.Module):
         
 
     @torch.no_grad()
-    def synthesise(self, enc_outputs, mask, spks=None):
+    def synthesise(self, enc_outputs, durations, mask, spks=None):
         if self.n_spks > 1:
             enc_outputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
 
-        out = self.prosody_predictor(enc_outputs, mask)
-        pitch_emb = self.embed_pitch(torch.bucketize(out[:, 0], self.pitch_bins))
+        pitch_out = self.pitch_predictor(enc_outputs, mask)
+        pitch_emb = self.embed_pitch(torch.bucketize(pitch_out.squeeze(1), self.pitch_bins)) * rearrange(mask, "b 1 t -> b t 1") 
         enc_outputs = enc_outputs + rearrange(pitch_emb, "b t c -> b c t")
-        energy_emb = self.embed_energy(torch.bucketize(out[:, 1], self.energy_bins))
+        energy_out = self.energy_predictor(enc_outputs, mask)
+        energy_emb = self.embed_energy(torch.bucketize(energy_out.squeeze(1), self.energy_bins)) * rearrange(mask, "b 1 t -> b t 1")
         enc_outputs = enc_outputs + rearrange(energy_emb, "b t c -> b c t")
         
-        return {
-            "enc_outputs": enc_outputs,
-            "pitch_pred": out[:, 0],
-            "energy_pred": out[:, 1]
+        durations = rearrange(durations, "b 1 t -> b t") 
+        pitch_out = expand_lengths(rearrange(pitch_out, "b 1 t -> b t 1" ), durations)[0]
+        energy_out = expand_lengths(rearrange(energy_out, "b 1 t -> b t 1" ), durations)[0]
+        
+        
+        return enc_outputs, {
+            "pitch_pred": pitch_out, 
+            "energy_pred": energy_out
         }
     
-    def prosody_predictor(self, enc_outputs, mask):
-        """
-        Args:
-            enc_outputs: b c t
-            mask (_type_): b 1 t
-
-        Returns:
-            : b t c
-        """
-        if self.name == "transformer":
-            enc_outputs = self.transformer(enc_outputs, mask)
-            return self.projection(enc_outputs)
-        else:
-            return self.predictor(enc_outputs, mask)
-
-    def forward(self, enc_outputs, mask, pitch, energy, spks=None):
+    def forward(self, enc_outputs, mask, durations, pitch, energy, spks=None):
         """
 
         Args:
@@ -347,14 +327,20 @@ class ProsodyPredictors(nn.Module):
         if self.n_spks > 1:
             enc_outputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
 
-        out = self.prosody_predictor(enc_outputs, mask)
-        pitch_emb = self.embed_pitch(torch.bucketize(pitch, self.pitch_bins))
-        enc_outputs = enc_outputs + rearrange(pitch_emb, "b t c -> b c t")
-        energy_emb = self.embed_energy(torch.bucketize(energy, self.energy_bins))
-        enc_outputs = enc_outputs + rearrange(energy_emb, "b t c -> b c t")
+              
+        pitch = average_over_durations(rearrange(pitch, "b t -> b 1 t"), durations)
+        energy = average_over_durations(rearrange(energy, "b t -> b 1 t"), durations)
         
-        pitch_loss = F.mse_loss(out[:, 0], pitch, reduction="sum") / torch.sum(mask)
-        energy_loss = F.mse_loss(out[:, 1], energy, reduction="sum") / torch.sum(mask)
+        pitch_out = self.pitch_predictor(enc_outputs, mask)
+        pitch_emb = self.embed_pitch(torch.bucketize(pitch.squeeze(1), self.pitch_bins)) * rearrange(mask, "b 1 t -> b t 1")
+        enc_outputs = enc_outputs + rearrange(pitch_emb, "b t c -> b c t")
+        energy_out = self.energy_predictor(enc_outputs, mask)
+        energy_emb = self.embed_energy(torch.bucketize(energy.squeeze(1), self.energy_bins)) * rearrange(mask, "b 1 t -> b t 1")
+        enc_outputs = enc_outputs + rearrange(energy_emb, "b t c -> b c t")
+  
+        pitch_loss = F.mse_loss(pitch_out, pitch, reduction="sum") / torch.sum(mask)
+        energy_loss = F.mse_loss(energy_out, energy, reduction="sum") / torch.sum(mask)
+ 
          
         losses = {
             "pitch_loss": pitch_loss,
