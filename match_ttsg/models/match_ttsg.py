@@ -94,7 +94,7 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         )
 
 
-    @torch.no_grad()
+    @torch.inference_mode()
     def synthesise(self, x, x_lengths, n_timesteps, temperature=1.0, spks=None, length_scale=1.0, dur_n=None):
         """
         Generates mel-spectrogram from text. Returns:

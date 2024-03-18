@@ -288,7 +288,7 @@ class ProsodyPredictors(nn.Module):
         nn.init.normal_(self.embed_energy.weight, mean=0, std=params.n_channels**-0.5)
         
 
-    @torch.no_grad()
+    @torch.inference_mode()
     def synthesise(self, enc_outputs, durations, mask, spks=None):
         if self.n_spks > 1:
             enc_outputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
