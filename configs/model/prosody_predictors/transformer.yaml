@@ -1,0 +1,10 @@
+name: transformer 
+n_spks: ${model.n_spks}
+spk_emb_dim: ${model.spk_emb_dim}
+n_channels: ${model.encoder.encoder_params.n_channels}
+filter_channels: ${model.encoder.encoder_params.filter_channels}
+n_heads: ${model.encoder.encoder_params.n_heads}
+n_layers: ${model.encoder.encoder_params.n_layers}
+kernel_size: ${model.encoder.encoder_params.kernel_size}
+p_dropout: ${model.encoder.encoder_params.p_dropout}
+n_bins: 256

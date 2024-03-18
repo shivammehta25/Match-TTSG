@@ -10,7 +10,7 @@ from match_ttsg.models.components.text_encoder import Encoder, LayerNorm
 # Define available networks
 
 class DurationPredictorNetwork(nn.Module):
-    def __init__(self, in_channels, filter_channels, kernel_size, p_dropout):
+    def __init__(self, in_channels, filter_channels, kernel_size, p_dropout, out=1):
         super().__init__()
 
         self.in_channels = in_channels
@@ -22,7 +22,7 @@ class DurationPredictorNetwork(nn.Module):
         self.norm_1 = LayerNorm(filter_channels)
         self.conv_2 = torch.nn.Conv1d(filter_channels, filter_channels, kernel_size, padding=kernel_size // 2)
         self.norm_2 = LayerNorm(filter_channels)
-        self.proj = torch.nn.Conv1d(filter_channels, 1, 1)
+        self.proj = torch.nn.Conv1d(filter_channels, out, 1)
 
     def forward(self, x, x_mask):
         x = self.conv_1(x * x_mask)
@@ -260,21 +260,34 @@ class ProsodyPredictors(nn.Module):
         ) -> None:
         super().__init__()
         self.n_spks = n_spks
+        self.name = params.name
         
-        self.transformer = Encoder(
-            params.n_channels + (spk_emb_dim if n_spks > 1 else 0),
-            params.filter_channels,
-            params.n_heads,
-            params.n_layers,
-            params.kernel_size,
-            params.p_dropout,
-        )
+        if params.name == "transformer":
+        
+            self.transformer = Encoder(
+                params.n_channels + (spk_emb_dim if n_spks > 1 else 0),
+                params.filter_channels,
+                params.n_heads,
+                params.n_layers,
+                params.kernel_size,
+                params.p_dropout,
+            )
 
-        self.projection = nn.Sequential(
-            nn.Mish(),
-            nn.Dropout(params.p_dropout),
-            nn.Conv1d(params.n_channels, 2, 1) # One for pitch and one for energy
-        )
+            self.projection = nn.Sequential(
+                nn.Mish(),
+                nn.Dropout(params.p_dropout),
+                nn.Conv1d(params.n_channels, 2, 1) # One for pitch and one for energy
+            )
+        elif params.name == "deterministic":
+            self.predictor = DurationPredictorNetwork(
+                params.n_channels + (spk_emb_dim if n_spks > 1 else 0),
+                params.filter_channels,
+                params.kernel_size,
+                params.p_dropout,
+                out=2
+            )
+        else:
+            raise ValueError(f"Invalid prosody predictor configuration: {params.name}")
         
         n_bins, steps = params.n_bins, params.n_bins - 1
         self.pitch_bins = nn.Parameter(torch.linspace(pitch_min.item(), pitch_max.item(), steps), requires_grad=False)
@@ -285,7 +298,7 @@ class ProsodyPredictors(nn.Module):
         nn.init.normal_(self.embed_energy.weight, mean=0, std=params.n_channels**-0.5)
         
 
-    @torch.inference_mode()
+    @torch.no_grad()
     def synthesise(self, enc_outputs, mask, spks=None):
         if self.n_spks > 1:
             enc_outputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
@@ -311,8 +324,11 @@ class ProsodyPredictors(nn.Module):
         Returns:
             : b t c
         """
-        enc_outputs = self.transformer(enc_outputs, mask)
-        return self.projection(enc_outputs)
+        if self.name == "transformer":
+            enc_outputs = self.transformer(enc_outputs, mask)
+            return self.projection(enc_outputs)
+        else:
+            return self.predictor(enc_outputs, mask)
 
     def forward(self, enc_outputs, mask, pitch, energy, spks=None):
         """
@@ -330,6 +346,7 @@ class ProsodyPredictors(nn.Module):
         """
         if self.n_spks > 1:
             enc_outputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
+
         out = self.prosody_predictor(enc_outputs, mask)
         pitch_emb = self.embed_pitch(torch.bucketize(pitch, self.pitch_bins))
         enc_outputs = enc_outputs + rearrange(pitch_emb, "b t c -> b c t")

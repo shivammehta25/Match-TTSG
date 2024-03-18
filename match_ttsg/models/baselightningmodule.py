@@ -197,7 +197,7 @@ class BaseLightningClass(LightningModule, ABC):
 
                 self.logger.experiment.add_image(
                     f"generated_dec/mel_{i}",
-                    self.plot_mel([(y_dec.squeeze().cpu().numpy().T, pitch_pred.cpu().squeeze(), energy_pred.cpu().squeeze())], [f"Generated_{i}"]),
+                    self.plot_mel([(y_dec.squeeze().cpu().numpy(), pitch_pred.cpu().squeeze(), energy_pred.cpu().squeeze())], [f"Generated_{i}"]),
                     self.current_epoch,
                     dataformats="HWC",
                 )

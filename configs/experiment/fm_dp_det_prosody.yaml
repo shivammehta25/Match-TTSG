@@ -6,6 +6,7 @@
 defaults:
   # - override /data: ryan.yaml
   - override /model/duration_predictor: flow_matching.yaml
+  - override /model/prosody_predictors: deterministic.yaml
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
@@ -13,7 +14,7 @@ defaults:
 tags: ["tsg2"]
 
 
-run_name: prosody_predictors 
+run_name: prosody_predictors_light 
 
 model:
   align_with_motion: true
