@@ -284,8 +284,6 @@ class Encoder(nn.Module):
         n_layers,
         kernel_size=1,
         p_dropout=0.0,
-        timesteps=None,
-        **kwargs,
     ):
         super().__init__()
         self.hidden_channels = hidden_channels
@@ -294,15 +292,15 @@ class Encoder(nn.Module):
         self.n_layers = n_layers
         self.kernel_size = kernel_size
         self.p_dropout = p_dropout
-        self.timesteps = timesteps
+        # self.timesteps = timesteps
         
-        if timesteps is not None:
-            self.time_embeddings = SinusoidalPosEmb(hidden_channels)
-            self.time_mlp = TimestepEmbedding(
-                in_channels=hidden_channels,
-                time_embed_dim=hidden_channels,
-                act_fn="silu",
-            )
+        # if timesteps is not None:
+        #     self.time_embeddings = SinusoidalPosEmb(hidden_channels)
+        #     self.time_mlp = TimestepEmbedding(
+        #         in_channels=hidden_channels,
+        #         time_embed_dim=hidden_channels,
+        #         act_fn="silu",
+        #     )
 
         self.drop = torch.nn.Dropout(p_dropout)
         self.attn_layers = torch.nn.ModuleList()
@@ -323,22 +321,22 @@ class Encoder(nn.Module):
             )
             self.norm_layers_2.append(LayerNorm(hidden_channels))
 
-    def forward(self, x, x_mask, t=None):
+    def forward(self, x, x_mask):
         
-        if self.timesteps is not None:
-            t = self.time_embeddings(t)
-            t = self.time_mlp(t).unsqueeze(-1)
-        else:
-            t = 0
+        # if self.timesteps is not None:
+        #     t = self.time_embeddings(t)
+        #     t = self.time_mlp(t).unsqueeze(-1)
+        # else:
+        #     t = 0
         
         attn_mask = x_mask.unsqueeze(2) * x_mask.unsqueeze(-1)
         for i in range(self.n_layers):
-            x = x + t
+            # x = x + t
             x = x * x_mask
             y = self.attn_layers[i](x, x, attn_mask)
             y = self.drop(y)
             x = self.norm_layers_1[i](x + y)
-            x = x + t
+            # x = x + t
             y = self.ffn_layers[i](x, x_mask)
             y = self.drop(y)
             x = self.norm_layers_2[i](x + y)

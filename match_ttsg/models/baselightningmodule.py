@@ -6,13 +6,14 @@ import inspect
 from abc import ABC
 from typing import Any, Dict
 
+import matplotlib.pyplot as plt
 import torch
 from lightning import LightningModule
 from lightning.pytorch.utilities import grad_norm
 
 from match_ttsg import utils
 from match_ttsg.utils.model import denormalize, normalize
-from match_ttsg.utils.utils import plot_tensor
+from match_ttsg.utils.utils import plot_tensor, save_figure_to_numpy
 
 log = utils.get_pylogger(__name__)
 
@@ -78,22 +79,22 @@ class BaseLightningClass(LightningModule, ABC):
         y, y_lengths = batch["y"], batch["y_lengths"]
         spks = batch["spks"]
         y_motion = batch["y_motion"]
+        pitch = batch["pitches"]
+        energy = batch["energies"]
         
 
-        dur_loss, prior_loss, diff_loss = self(
+        loss_dict = self(
             x=x,
             x_lengths=x_lengths,
             y=y,
             y_lengths=y_lengths,
             y_motion=y_motion,
+            pitch=pitch,
+            energy=energy,
             spks=spks,
             out_size=self.out_size,
         )
-        return {
-            "dur_loss": dur_loss,
-            "prior_loss": prior_loss,
-            "diff_loss": diff_loss,
-        }
+        return loss_dict
 
     def on_load_checkpoint(self, checkpoint: Dict[str, Any]) -> None:
         self.ckpt_loaded_epoch = checkpoint["epoch"]  # pylint: disable=attribute-defined-outside-init
@@ -108,31 +109,15 @@ class BaseLightningClass(LightningModule, ABC):
             logger=True,
             sync_dist=True,
         )
-
-        self.log(
-            "sub_loss/train_dur_loss",
-            loss_dict["dur_loss"],
-            on_step=True,
-            on_epoch=True,
-            logger=True,
-            sync_dist=True,
-        )
-        self.log(
-            "sub_loss/train_prior_loss",
-            loss_dict["prior_loss"],
-            on_step=True,
-            on_epoch=True,
-            logger=True,
-            sync_dist=True,
-        )
-        self.log(
-            "sub_loss/train_diff_loss",
-            loss_dict["diff_loss"],
-            on_step=True,
-            on_epoch=True,
-            logger=True,
-            sync_dist=True,
-        )
+        for loss in loss_dict:
+            self.log(
+                f"sub_loss/train_{loss}",
+                loss_dict[loss],
+                on_step=True,
+                on_epoch=True,
+                logger=True,
+                sync_dist=True,
+            )
 
         total_loss = sum(loss_dict.values())
         self.log(
@@ -149,31 +134,16 @@ class BaseLightningClass(LightningModule, ABC):
 
     def validation_step(self, batch: Any, batch_idx: int):
         loss_dict = self.get_losses(batch)
-        self.log(
-            "sub_loss/val_dur_loss",
-            loss_dict["dur_loss"],
-            on_step=True,
-            on_epoch=True,
-            logger=True,
-            sync_dist=True,
-        )
-        self.log(
-            "sub_loss/val_prior_loss",
-            loss_dict["prior_loss"],
-            on_step=True,
-            on_epoch=True,
-            logger=True,
-            sync_dist=True,
-        )
-        self.log(
-            "sub_loss/val_diff_loss",
-            loss_dict["diff_loss"],
-            on_step=True,
-            on_epoch=True,
-            logger=True,
-            sync_dist=True,
-        )
-
+        for loss in loss_dict:
+                self.log(
+                f"sub_loss/val_{loss}",
+                loss_dict[loss],
+                on_step=True,
+                on_epoch=True,
+                logger=True,
+                sync_dist=True,
+            ) 
+ 
         total_loss = sum(loss_dict.values())
         self.log(
             "loss/val",
@@ -193,10 +163,17 @@ class BaseLightningClass(LightningModule, ABC):
             if self.current_epoch == 0:
                 log.debug("Plotting original samples")
                 for i in range(2):
-                    y = one_batch["y"][i].unsqueeze(0).to(self.device)
+                    y = denormalize(one_batch["y"][i].unsqueeze(0).to(self.device), self.mel_mean, self.mel_std)[:, :, :one_batch["y_lengths"][i]]
+
+                    original_pitch = one_batch["pitches"][i].unsqueeze(0).to(self.device)[:, :one_batch["y_lengths"][i]]
+                    original_pitch = denormalize(original_pitch, self.pitch_mean, self.pitch_std)
+                    
+                    original_energy = one_batch["energies"][i].unsqueeze(0).to(self.device)[:, :one_batch["y_lengths"][i]]
+                    original_energy = denormalize(original_energy, self.energy_mean, self.energy_std)
+
                     self.logger.experiment.add_image(
                         f"original/{i}",
-                        plot_tensor(y.squeeze().cpu()),
+                        self.plot_mel([(y.squeeze().cpu().numpy(), original_pitch.cpu().squeeze(), original_energy.cpu().squeeze())], [f"Data_{i}"]),
                         self.current_epoch,
                         dataformats="HWC",
                     )
@@ -209,16 +186,18 @@ class BaseLightningClass(LightningModule, ABC):
                 output = self.synthesise(x[:, :x_lengths], x_lengths, n_timesteps=10, spks=spks)
                 y_enc, y_dec = output["encoder_outputs_mel"], output["decoder_outputs_mel"]
                 y_motion_enc, y_motion_dec, attn = output['encoder_outputs_motion'], output['decoder_outputs_motion'], output['attn']
-                attn = output["attn"]
+                pitch_pred, energy_pred = output["pitch_pred"], output["energy_pred"]
+
                 self.logger.experiment.add_image(
                     f"generated_enc/mel_{i}",
                     plot_tensor(y_enc.squeeze().cpu()),
                     self.current_epoch,
                     dataformats="HWC",
                 )
+
                 self.logger.experiment.add_image(
                     f"generated_dec/mel_{i}",
-                    plot_tensor(y_dec.squeeze().cpu()),
+                    self.plot_mel([(y_dec.squeeze().cpu().numpy().T, pitch_pred.cpu().squeeze(), energy_pred.cpu().squeeze())], [f"Generated_{i}"]),
                     self.current_epoch,
                     dataformats="HWC",
                 )
@@ -233,3 +212,61 @@ class BaseLightningClass(LightningModule, ABC):
 
     def on_before_optimizer_step(self, optimizer):
         self.log_dict({f"grad_norm/{k}": v for k, v in grad_norm(self, norm_type=2).items()})
+
+    
+    def plot_mel(self, data, titles, show=False):
+        fig, axes = plt.subplots(len(data), 1, squeeze=False)
+        if titles is None:
+            titles = [None for i in range(len(data))]
+        
+        pitch_max = denormalize(self.pitch_max, self.pitch_mean, self.pitch_std).cpu().item()
+        energy_min = denormalize(self.energy_min, self.energy_mean, self.energy_std).cpu().item()
+        energy_max = denormalize(self.energy_max, self.energy_mean, self.energy_std).cpu().item()
+
+        def add_axis(fig, old_ax):
+            ax = fig.add_axes(old_ax.get_position(), anchor="W")
+            ax.set_facecolor("None")
+            return ax
+
+        for i in range(len(data)):
+            mel, pitch, energy = data[i]
+            axes[i][0].imshow(mel, origin="lower")
+            axes[i][0].set_aspect(2.5, adjustable="box")
+            axes[i][0].set_ylim(0, mel.shape[0])
+            axes[i][0].set_title(titles[i], fontsize="medium")
+            axes[i][0].tick_params(labelsize="x-small", left=False, labelleft=False)
+            axes[i][0].set_anchor("W")
+
+            ax1 = add_axis(fig, axes[i][0])
+            ax1.plot(pitch, color="tomato")
+            ax1.set_xlim(0, mel.shape[1])
+            ax1.set_ylim(0, pitch_max)
+            ax1.set_ylabel("F0", color="tomato")
+            ax1.tick_params(
+                labelsize="x-small", colors="tomato", bottom=False, labelbottom=False
+            )
+
+            ax2 = add_axis(fig, axes[i][0])
+            ax2.plot(energy, color="darkviolet")
+            ax2.set_xlim(0, mel.shape[1])
+            ax2.set_ylim(energy_min, energy_max)
+            ax2.set_ylabel("Energy", color="darkviolet")
+            ax2.yaxis.set_label_position("right")
+            ax2.tick_params(
+                labelsize="x-small",
+                colors="darkviolet",
+                bottom=False,
+                labelbottom=False,
+                left=False,
+                labelleft=False,
+                right=True,
+                labelright=True,
+            )
+        fig.canvas.draw()
+        if show:
+            plt.show()
+            return
+
+        data = save_figure_to_numpy(fig)
+        plt.close()
+        return data 

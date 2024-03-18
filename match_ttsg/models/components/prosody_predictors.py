@@ -1,11 +1,11 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from einops import pack
+from einops import pack, rearrange
 
 from match_ttsg.models.components.decoder import (SinusoidalPosEmb,
                                                   TimestepEmbedding)
-from match_ttsg.models.components.text_encoder import LayerNorm
+from match_ttsg.models.components.text_encoder import Encoder, LayerNorm
 
 # Define available networks
 
@@ -144,7 +144,6 @@ class FlowMatchingDurationPrediction(nn.Module):
         """
         if n_timesteps is None:
             n_timesteps = self.n_steps
-            print(f"Using default n_timesteps: {n_timesteps}")
 
         b, _, t = enc_outputs.shape
         z = torch.randn((b, 1, t), device=enc_outputs.device, dtype=enc_outputs.dtype) * temperature
@@ -245,4 +244,103 @@ class DP(nn.Module):
             return self.dp(enc_outputs, mask)
 
     def compute_loss(self, durations, enc_outputs, mask):
-        return self.dp.compute_loss(durations, enc_outputs, mask)
+        return self.dp.compute_loss(durations, enc_outputs, mask) 
+
+
+class ProsodyPredictors(nn.Module):
+    def __init__(
+            self,
+            params,
+            n_spks,
+            spk_emb_dim,
+            pitch_min,
+            pitch_max,
+            energy_min,
+            energy_max    
+        ) -> None:
+        super().__init__()
+        self.n_spks = n_spks
+        
+        self.transformer = Encoder(
+            params.n_channels + (spk_emb_dim if n_spks > 1 else 0),
+            params.filter_channels,
+            params.n_heads,
+            params.n_layers,
+            params.kernel_size,
+            params.p_dropout,
+        )
+
+        self.projection = nn.Sequential(
+            nn.Mish(),
+            nn.Dropout(params.p_dropout),
+            nn.Conv1d(params.n_channels, 2, 1) # One for pitch and one for energy
+        )
+        
+        n_bins, steps = params.n_bins, params.n_bins - 1
+        self.pitch_bins = nn.Parameter(torch.linspace(pitch_min.item(), pitch_max.item(), steps), requires_grad=False)
+        self.embed_pitch = nn.Embedding(n_bins, params.n_channels)
+        nn.init.normal_(self.embed_pitch.weight, mean=0, std=params.n_channels**-0.5)
+        self.energy_bins =  nn.Parameter(torch.linspace(energy_min.item(), energy_max.item(), steps), requires_grad=False)
+        self.embed_energy = nn.Embedding(n_bins, params.n_channels) 
+        nn.init.normal_(self.embed_energy.weight, mean=0, std=params.n_channels**-0.5)
+        
+
+    @torch.inference_mode()
+    def synthesise(self, enc_outputs, mask, spks=None):
+        if self.n_spks > 1:
+            enc_outputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
+
+        out = self.prosody_predictor(enc_outputs, mask)
+        pitch_emb = self.embed_pitch(torch.bucketize(out[:, 0], self.pitch_bins))
+        enc_outputs = enc_outputs + rearrange(pitch_emb, "b t c -> b c t")
+        energy_emb = self.embed_energy(torch.bucketize(out[:, 1], self.energy_bins))
+        enc_outputs = enc_outputs + rearrange(energy_emb, "b t c -> b c t")
+        
+        return {
+            "enc_outputs": enc_outputs,
+            "pitch_pred": out[:, 0],
+            "energy_pred": out[:, 1]
+        }
+    
+    def prosody_predictor(self, enc_outputs, mask):
+        """
+        Args:
+            enc_outputs: b c t
+            mask (_type_): b 1 t
+
+        Returns:
+            : b t c
+        """
+        enc_outputs = self.transformer(enc_outputs, mask)
+        return self.projection(enc_outputs)
+
+    def forward(self, enc_outputs, mask, pitch, energy, spks=None):
+        """
+
+        Args:
+            enc_outputs (b c t): 
+            mask (b 1 t): 
+            pitch (b t): 
+            energy (b t): 
+            spks (b s, optional): Defaults to None.
+
+        Returns:
+            enc_outputs: b c t
+            losses: dict
+        """
+        if self.n_spks > 1:
+            enc_outputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
+        out = self.prosody_predictor(enc_outputs, mask)
+        pitch_emb = self.embed_pitch(torch.bucketize(pitch, self.pitch_bins))
+        enc_outputs = enc_outputs + rearrange(pitch_emb, "b t c -> b c t")
+        energy_emb = self.embed_energy(torch.bucketize(energy, self.energy_bins))
+        enc_outputs = enc_outputs + rearrange(energy_emb, "b t c -> b c t")
+        
+        pitch_loss = F.mse_loss(out[:, 0], pitch, reduction="sum") / torch.sum(mask)
+        energy_loss = F.mse_loss(out[:, 1], energy, reduction="sum") / torch.sum(mask)
+         
+        losses = {
+            "pitch_loss": pitch_loss,
+            "energy_loss": energy_loss
+        }
+        return enc_outputs, losses
