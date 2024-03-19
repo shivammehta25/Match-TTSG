@@ -39,11 +39,17 @@ def generate_preprocessing_files(dataset: torch.utils.data.Dataset, processed_fo
     pitch_sum = 0
     pitch_sq_sum = 0
     
+    pitch_std_min = float("inf")
+    pitch_std_max = -float("inf")
+    
     # Energy stats
     energy_min = float("inf")
     energy_max = -float("inf")
     energy_sum = 0
     energy_sq_sum = 0
+    
+    energy_std_min = float("inf")
+    energy_std_max = -float("inf")
     
     # Mel stats
     mel_sum = 0
@@ -55,6 +61,7 @@ def generate_preprocessing_files(dataset: torch.utils.data.Dataset, processed_fo
     motion_sq_sum = 0
     
     pitch_folder, energy_folder, mel_folder = init_folders(processed_folder_name)
+
     
     # Benefit of doing it over batch is the added speed due to multiprocessing
     for batch in tqdm(dataset, desc="🍵 Preprocessing durations 🍵"):

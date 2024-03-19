@@ -4,8 +4,9 @@
 # python train.py experiment=multispeaker
 
 defaults:
-  # - override /data: ryan.yaml
+  - override /data: synthetic_trimodal.yaml
   - override /model/duration_predictor: flow_matching.yaml
+  - override /model/prosody_predictors: deterministic.yaml
 
 # all parameters below will be merged with parameters from default configurations set above
 # this allows you to overwrite only specified parameters
@@ -13,7 +14,7 @@ defaults:
 tags: ["tsg2"]
 
 
-run_name: prosody_predictors 
+run_name: synthetic_trimodal 
 
 model:
   align_with_motion: true
@@ -22,3 +23,4 @@ model:
 
 trainer:
   max_steps: 300001
+  check_val_every_n_epoch: 4

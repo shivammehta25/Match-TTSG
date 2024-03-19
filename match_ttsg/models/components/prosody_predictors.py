@@ -265,13 +265,13 @@ class ProsodyPredictors(nn.Module):
         
         if params.name == "deterministic":
             self.pitch_predictor = DurationPredictorNetwork(
-                params.n_channels + (spk_emb_dim if n_spks > 1 else 0),
+                params.n_channels + (2 * spk_emb_dim if n_spks > 1 else 0),
                 params.filter_channels,
                 params.kernel_size,
                 params.p_dropout
             )
             self.energy_predictor = DurationPredictorNetwork(
-                params.n_channels + (spk_emb_dim if n_spks > 1 else 0),
+                params.n_channels + (2 * spk_emb_dim if n_spks > 1 else 0),
                 params.filter_channels,
                 params.kernel_size,
                 params.p_dropout
@@ -281,24 +281,17 @@ class ProsodyPredictors(nn.Module):
         
         n_bins, steps = params.n_bins, params.n_bins - 1
         self.pitch_bins = nn.Parameter(torch.linspace(pitch_min.item(), pitch_max.item(), steps), requires_grad=False)
-        self.embed_pitch = nn.Embedding(n_bins, params.n_channels)
+        self.embed_pitch = nn.Embedding(n_bins, params.n_channels + (spk_emb_dim if n_spks > 1 else 0))
         nn.init.normal_(self.embed_pitch.weight, mean=0, std=params.n_channels**-0.5)
         self.energy_bins =  nn.Parameter(torch.linspace(energy_min.item(), energy_max.item(), steps), requires_grad=False)
-        self.embed_energy = nn.Embedding(n_bins, params.n_channels) 
+        self.embed_energy = nn.Embedding(n_bins, params.n_channels + (spk_emb_dim if n_spks > 1 else 0)) 
         nn.init.normal_(self.embed_energy.weight, mean=0, std=params.n_channels**-0.5)
         
 
     @torch.inference_mode()
     def synthesise(self, enc_outputs, durations, mask, spks=None):
-        if self.n_spks > 1:
-            enc_outputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
-
-        pitch_out = self.pitch_predictor(enc_outputs, mask)
-        pitch_emb = self.embed_pitch(torch.bucketize(pitch_out.squeeze(1), self.pitch_bins)) * rearrange(mask, "b 1 t -> b t 1") 
-        enc_outputs = enc_outputs + rearrange(pitch_emb, "b t c -> b c t")
-        energy_out = self.energy_predictor(enc_outputs, mask)
-        energy_emb = self.embed_energy(torch.bucketize(energy_out.squeeze(1), self.energy_bins)) * rearrange(mask, "b 1 t -> b t 1")
-        enc_outputs = enc_outputs + rearrange(energy_emb, "b t c -> b c t")
+        
+        enc_outputs, pitch_out, energy_out = self.get_values(enc_outputs, mask, spks=spks)
         
         durations = rearrange(durations, "b 1 t -> b t") 
         pitch_out = expand_lengths(rearrange(pitch_out, "b 1 t -> b t 1" ), durations)[0]
@@ -324,19 +317,12 @@ class ProsodyPredictors(nn.Module):
             enc_outputs: b c t
             losses: dict
         """
-        if self.n_spks > 1:
-            enc_outputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
 
               
         pitch = average_over_durations(rearrange(pitch, "b t -> b 1 t"), durations)
         energy = average_over_durations(rearrange(energy, "b t -> b 1 t"), durations)
         
-        pitch_out = self.pitch_predictor(enc_outputs, mask)
-        pitch_emb = self.embed_pitch(torch.bucketize(pitch.squeeze(1), self.pitch_bins)) * rearrange(mask, "b 1 t -> b t 1")
-        enc_outputs = enc_outputs + rearrange(pitch_emb, "b t c -> b c t")
-        energy_out = self.energy_predictor(enc_outputs, mask)
-        energy_emb = self.embed_energy(torch.bucketize(energy.squeeze(1), self.energy_bins)) * rearrange(mask, "b 1 t -> b t 1")
-        enc_outputs = enc_outputs + rearrange(energy_emb, "b t c -> b c t")
+        enc_outputs, pitch_out, energy_out = self.get_values(enc_outputs, mask, pitch, energy, spks)
   
         pitch_loss = F.mse_loss(pitch_out, pitch, reduction="sum") / torch.sum(mask)
         energy_loss = F.mse_loss(energy_out, energy, reduction="sum") / torch.sum(mask)
@@ -347,3 +333,29 @@ class ProsodyPredictors(nn.Module):
             "energy_loss": energy_loss
         }
         return enc_outputs, losses
+
+    def get_values(self, enc_outputs, mask, pitch=None, energy=None, spks=None):
+        if self.n_spks > 1:
+            pitch_inputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
+        else:
+            pitch_inputs = enc_outputs
+
+        pitch_out = self.pitch_predictor(pitch_inputs, mask)
+        
+        if pitch is None: 
+            pitch = pitch_out
+        pitch_emb = self.embed_pitch(torch.bucketize(pitch.squeeze(1), self.pitch_bins)) * rearrange(mask, "b 1 t -> b t 1")
+        enc_outputs = enc_outputs + rearrange(pitch_emb, "b t c -> b c t")
+        
+
+        if self.n_spks > 1:
+            energy_inputs = torch.cat([enc_outputs, spks.unsqueeze(-1).repeat(1, 1, enc_outputs.shape[-1])], dim=1)
+        else:
+            energy_inputs = enc_outputs
+
+        energy_out = self.energy_predictor(energy_inputs, mask)
+        if energy is None: 
+            energy = energy_out
+        energy_emb = self.embed_energy(torch.bucketize(energy.squeeze(1), self.energy_bins)) * rearrange(mask, "b 1 t -> b t 1")
+        enc_outputs = enc_outputs + rearrange(energy_emb, "b t c -> b c t")
+        return enc_outputs,pitch_out,energy_out

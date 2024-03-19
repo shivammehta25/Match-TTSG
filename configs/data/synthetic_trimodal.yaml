@@ -1,0 +1,35 @@
+_target_: match_ttsg.data.text_mel_motion_datamodule.TextMelMotionDataModule
+name: synthetic_trimodal 
+train_filelist_path: data/synthetic_trimodal/train.txt 
+valid_filelist_path: data/synthetic_trimodal/val.txt
+batch_size: 32
+num_workers: 20
+n_spks: 4
+pin_memory: True
+cleaners: [english_cleaners2]
+motion_folder: data/synthetic_trimodal/expmaps 
+add_blank: True
+n_fft: 1024
+n_feats: 80
+n_motions: 45
+sample_rate: 22050
+hop_length: 256
+win_length: 1024
+f_min: 0
+f_max: 8000
+data_statistics:  # Computed for tsg2 dataset
+  pitch_min: 57.394836
+  pitch_max: 850.00769
+  pitch_mean: 176.277832
+  pitch_std: 59.090569
+  energy_min: 0.000716
+  energy_max: 271.082886
+  energy_mean: 36.908783
+  energy_std: 39.947067
+  mel_mean: -5.498495
+  mel_std: 2.584965
+  motion_mean: 0.897644
+  motion_std: 0.717654
+motion_pipeline_filename: data_pipe.expmap_86.1328125fps.sav 
+seed: ${seed}
+generate_properties: false

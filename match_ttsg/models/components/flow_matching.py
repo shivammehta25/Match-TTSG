@@ -127,6 +127,6 @@ class CFM(BASECFM):
             spk_emb_dim=spk_emb_dim,
         )
 
-        in_channels = in_channels + (spk_emb_dim if n_spks > 1 else 0)
+        in_channels = in_channels + (2 * spk_emb_dim if n_spks > 1 else 0)
         # Just change the architecture of the estimator here
         self.estimator = Decoder(in_channels=in_channels, out_channels=out_channel, **decoder_params)
