@@ -40,6 +40,7 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         optimizer=None,
         scheduler=None,
         prior_loss=True,
+        ckpt_path=None
     ):
         super().__init__()
 
@@ -93,6 +94,15 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             spk_emb_dim=spk_emb_dim,
         )
 
+    def on_load_checkpoint(self, checkpoint) -> None:
+        if self.hparams.ckpt_path:
+            state_dict = torch.load(self.hparams.ckpt_path)["state_dict"]
+
+            if state_dict["spk_emb.weight"].shape[0] != self.n_spks:
+                del state_dict["spk_emb.weight"]
+
+            self.load_state_dict(state_dict, strict=False)
+        return super().on_load_checkpoint(checkpoint)
 
     @torch.inference_mode()
     def synthesise(self, x, x_lengths, n_timesteps, temperature=1.0, spks=None, length_scale=1.0, dur_n=None):
@@ -264,7 +274,7 @@ class MatchTTSG(BaseLightningClass):  # 🍵
                 [torch.tensor(random.choice(range(start, end)) if end > start else 0) for start, end in offset_ranges]
             ).to(y_lengths)
             attn_cut = torch.zeros(attn.shape[0], attn.shape[1], out_size, dtype=attn.dtype, device=attn.device)
-            y_cut = torch.zeros(y.shape[0], self.n_feats, out_size, dtype=y.dtype, device=y.device)
+            y_cut = torch.zeros(y.shape[0], self.n_feats + self.n_motions, out_size, dtype=y.dtype, device=y.device)
 
             y_cut_lengths = []
             for i, (y_, out_offset_) in enumerate(zip(y, out_offset)):
