@@ -14,7 +14,7 @@ defaults:
 tags: ["tsg2"]
 
 
-run_name: synthetic_trimodal 
+run_name: synthetic_trimodal_light 
 
 model:
   align_with_motion: true
@@ -23,4 +23,4 @@ model:
 
 trainer:
   max_steps: 300001
-  check_val_every_n_epoch: 4
+  # check_val_every_n_epoch: 4

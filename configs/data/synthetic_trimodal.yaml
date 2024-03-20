@@ -4,7 +4,7 @@ train_filelist_path: data/synthetic_trimodal/train.txt
 valid_filelist_path: data/synthetic_trimodal/val.txt
 batch_size: 32
 num_workers: 20
-n_spks: 4
+n_spks: 16 
 pin_memory: True
 cleaners: [english_cleaners2]
 motion_folder: data/synthetic_trimodal/expmaps 

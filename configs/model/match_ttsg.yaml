@@ -18,4 +18,4 @@ out_size: null # Must be divisible by 4
 align_with_motion: True
 motion_prior_loss: True
 prior_loss: true
-ckpt_path: ${ckpt_path}
+warm_start_path: null

@@ -19,10 +19,10 @@ run_name: synthetic_trimodal_light
 model:
   align_with_motion: true
   motion_prior_loss: true
-  out_size: 432 # approx 5 seconds
+  out_size: 864 # approx 5 seconds
   # out_size: 864 # approx 5 seconds
 
 
 trainer:
   max_steps: 300001
-  check_val_every_n_epoch: 5 
+  # check_val_every_n_epoch: 5 

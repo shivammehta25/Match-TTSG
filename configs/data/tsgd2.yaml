@@ -1,13 +1,13 @@
 _target_: match_ttsg.data.text_mel_motion_datamodule.TextMelMotionDataModule
 name: tsgd2
-train_filelist_path: data/filelists/tsg2_train.txt
-valid_filelist_path: data/filelists/tsg2_val.txt
+train_filelist_path: data/tsgd2/train.txt 
+valid_filelist_path: data/tsgd2/val.txt
 batch_size: 32
 num_workers: 20
 n_spks: 1
 pin_memory: True
 cleaners: [english_cleaners2]
-motion_folder: data/cormac/processed_sm0_0_86fps
+motion_folder: data/tsgd2/processed_sm0_0_86.1328125fps
 add_blank: True
 n_fft: 1024
 n_feats: 80

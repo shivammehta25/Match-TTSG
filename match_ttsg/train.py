@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import hydra
 import lightning as L
 import rootutils
+import torch
 from lightning import Callback, LightningDataModule, LightningModule, Trainer
 from lightning.pytorch.loggers import Logger
 from omegaconf import DictConfig
@@ -51,6 +52,19 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 
     log.info(f"Instantiating model <{cfg.model._target_}>")  # pylint: disable=protected-access
     model: LightningModule = hydra.utils.instantiate(cfg.model)
+    
+    if model.hparams.warm_start_path:    
+        state_dict = torch.load(model.hparams.warm_start_path, map_location="cpu")["state_dict"]
+        if state_dict["spk_emb.weight"].shape[0] != model.n_spks:
+            del state_dict["spk_emb.weight"]
+
+        model.load_state_dict(state_dict, strict=False)
+        print(f"[+] Loaded model from {model.hparams.warm_start_path} on device : {model.device}")
+        del state_dict
+        import gc  # garbage collect library
+        gc.collect()
+        torch.cuda.empty_cache()
+                
 
     log.info("Instantiating callbacks...")
     callbacks: List[Callback] = utils.instantiate_callbacks(cfg.get("callbacks"))

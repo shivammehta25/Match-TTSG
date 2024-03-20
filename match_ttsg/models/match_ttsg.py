@@ -40,7 +40,7 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         optimizer=None,
         scheduler=None,
         prior_loss=True,
-        ckpt_path=None
+        warm_start_path=None
     ):
         super().__init__()
 
@@ -93,17 +93,7 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             n_spks=n_spks,
             spk_emb_dim=spk_emb_dim,
         )
-
-    def on_load_checkpoint(self, checkpoint) -> None:
-        if self.hparams.ckpt_path:
-            state_dict = torch.load(self.hparams.ckpt_path)["state_dict"]
-
-            if state_dict["spk_emb.weight"].shape[0] != self.n_spks:
-                del state_dict["spk_emb.weight"]
-
-            self.load_state_dict(state_dict, strict=False)
-        return super().on_load_checkpoint(checkpoint)
-
+        
     @torch.inference_mode()
     def synthesise(self, x, x_lengths, n_timesteps, temperature=1.0, spks=None, length_scale=1.0, dur_n=None):
         """
