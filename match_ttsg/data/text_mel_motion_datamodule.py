@@ -49,7 +49,8 @@ class TextMelMotionDataModule(LightningDataModule):
         f_max,
         data_statistics,
         motion_pipeline_filename,
-        seed
+        seed,
+        **kwargs,
     ):
         super().__init__()
 

@@ -4,6 +4,7 @@ import random
 
 import torch
 from einops import pack
+from omegaconf.listconfig import ListConfig
 
 import match_ttsg.utils.monotonic_align as monotonic_align
 from match_ttsg import utils
@@ -54,8 +55,9 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             self.spk_emb = torch.nn.Embedding(n_spks, spk_emb_dim)
             
         
-        if isinstance(encoder.encoder_params.n_feats, list):
+        if isinstance(encoder.encoder_params.n_feats, (list, ListConfig)):
             encoder.encoder_params.n_feats = sum(encoder.encoder_params.n_feats)
+        
 
         self.encoder = TextEncoder(
             encoder.encoder_type,

@@ -39,6 +39,7 @@ class TextMelDataModule(LightningDataModule):
         f_max,
         data_statistics,
         seed,
+        **kwargs,
     ):
         super().__init__()
 
