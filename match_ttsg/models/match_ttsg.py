@@ -58,7 +58,8 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         self.motion_prior_loss = motion_prior_loss
         self.use_provided_durations = use_provided_durations
         self.update_data_statistics(data_statistics)
-
+        if use_provided_durations:
+            log.info("Using provided durations for training")
 
         if n_spks > 1:
             self.spk_emb = torch.nn.Embedding(n_spks, spk_emb_dim)

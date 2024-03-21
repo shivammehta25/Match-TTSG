@@ -57,10 +57,23 @@ def train(cfg: DictConfig) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         state_dict = torch.load(model.hparams.warm_start_path, map_location="cpu")["state_dict"]
         if state_dict["spk_emb.weight"].shape[0] != model.n_spks:
             del state_dict["spk_emb.weight"]
+        
+        model_dict = model.state_dict() 
+        final_dict = {}
+        for k, v in state_dict.items():
+            if k not in model_dict:
+                continue
+            if model_dict[k].shape != v.shape:
+                log.info(f"Skipping {k} due to shape mismatch: required shape: {model_dict[k].shape}, loaded shape: {v.shape}")
+                continue
+            final_dict[k] = v
 
-        model.load_state_dict(state_dict, strict=False)
+
+        model.load_state_dict(final_dict, strict=False)
         print(f"[+] Loaded model from {model.hparams.warm_start_path} on device : {model.device}")
         del state_dict
+        del model_dict
+        del final_dict
         import gc  # garbage collect library
         gc.collect()
         torch.cuda.empty_cache()
