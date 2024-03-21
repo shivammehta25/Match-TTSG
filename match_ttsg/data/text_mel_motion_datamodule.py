@@ -53,6 +53,7 @@ class TextMelMotionDataModule(LightningDataModule):
         f_max,
         data_statistics,
         motion_pipeline_filename,
+        use_provided_durations,
         seed,
         generate_properties,
     ):
@@ -85,6 +86,7 @@ class TextMelMotionDataModule(LightningDataModule):
             self.hparams.f_min,
             self.hparams.f_max,
             self.hparams.data_statistics,
+            self.hparams.use_provided_durations,
             self.hparams.seed,
             self.hparams.generate_properties,
         )
@@ -103,6 +105,7 @@ class TextMelMotionDataModule(LightningDataModule):
             self.hparams.f_min,
             self.hparams.f_max,
             self.hparams.data_statistics,
+            self.hparams.use_provided_durations,
             self.hparams.seed,
             self.hparams.generate_properties,
         )
@@ -115,7 +118,7 @@ class TextMelMotionDataModule(LightningDataModule):
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=True,
-            collate_fn=TextMelMotionBatchCollate(self.hparams.n_spks)
+            collate_fn=TextMelMotionBatchCollate(self.hparams.n_spks, self.hparams.use_provided_durations)
         )
 
     def val_dataloader(self):
@@ -125,7 +128,7 @@ class TextMelMotionDataModule(LightningDataModule):
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
             shuffle=False,
-            collate_fn=TextMelMotionBatchCollate(self.hparams.n_spks)
+            collate_fn=TextMelMotionBatchCollate(self.hparams.n_spks, self.hparams.use_provided_durations)
         )
 
     def teardown(self, stage: Optional[str] = None):
@@ -158,6 +161,7 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
         f_min=0.0,
         f_max=8000,
         data_statistics=None,
+        use_provided_durations=False,
         seed=None,
         generate_properties=False,
     ):
@@ -165,7 +169,7 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
         self.filepaths_and_text = parse_filelist(filelist_path)
         self.n_spks = n_spks
         self.filelist_path = Path(filelist_path)
-        self.motion_fileloc = Path(motion_folder)
+        self.motion_folder = Path(motion_folder)
         self.cleaners = cleaners
         self.add_blank = add_blank
         self.n_fft = n_fft
@@ -175,8 +179,9 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
         self.win_length = win_length
         self.f_min = f_min
         self.f_max = f_max
+        self.use_provided_durations = use_provided_durations
         self.generate_properties = generate_properties
-        self.processed_folder_path = self.motion_fileloc.parent 
+        self.processed_folder_path = self.motion_folder.parent 
 
         if data_statistics is not None:
             self.data_statistics = data_statistics
@@ -226,12 +231,19 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
 
         motion = self.get_motion(filepath, mel.shape[1])
         
+        if self.use_provided_durations:
+            durations = np.load(self.processed_folder_path / 'durations' / Path(Path(filepath).stem).with_suffix(".npy"))
+            durations = torch.from_numpy(durations)
+        else:
+            durations = None
+        
         return {
             'y': mel,
             'x': processed_text,
             'y_motion': motion,
             "pitch": pitch,
             "energy": energy,
+            "durations": durations,
             'text': text,
             'spk': spk,
             'filepath': filepath
@@ -239,7 +251,7 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
 
     
     def get_motion(self, filename, mel_shape, ext=".expmap_86.1328125fps.pkl"):
-        file_loc = self.motion_fileloc / Path(Path(filename).name).with_suffix(ext)
+        file_loc = self.motion_folder / Path(Path(filename).name).with_suffix(ext)
         motion = torch.from_numpy(pd.read_pickle(file_loc).to_numpy())
         motion = F.interpolate(motion.T.unsqueeze(0), mel_shape).squeeze(0)
         motion = normalize(motion, self.data_statistics['motion_mean'], self.data_statistics['motion_std'])
@@ -301,8 +313,9 @@ class TextMelMotionDataset(torch.utils.data.Dataset):
 
 
 class TextMelMotionBatchCollate:
-    def __init__(self, n_spks) -> None:
+    def __init__(self, n_spks, use_provided_durations=False) -> None:
         self.n_spks = n_spks
+        self.use_provided_durations = use_provided_durations
         
     def __call__(self, batch):
         B = len(batch)
@@ -320,6 +333,10 @@ class TextMelMotionBatchCollate:
         spks = []
         pitches = torch.zeros((B, y_max_length), dtype=torch.float32)
         energies = torch.zeros((B, y_max_length), dtype=torch.float32)
+        if self.use_provided_durations:
+            durations = torch.zeros((B, 1, x_max_length), dtype=torch.float32)
+        else:
+            durations = None
 
         for i, item in enumerate(batch):
             y_, x_, y_motion_ = item['y'], item['x'], item['y_motion']
@@ -334,9 +351,12 @@ class TextMelMotionBatchCollate:
             filepaths.append(item['filepath'])
             spks.append(item["spk"])
 
+            if self.use_provided_durations:
+                durations[i, 0, :x_.shape[-1]] = item['durations']
+
         y_lengths = torch.LongTensor(y_lengths)
         x_lengths = torch.LongTensor(x_lengths)
-        spks = torch.tensor(spks, dtype=torch.long) if self.n_spks > 1 else None
+        spks = torch.tensor(spks, dtype=torch.long) if self.n_spks > 1 else None 
 
         return {
             'x': x, 
@@ -348,5 +368,6 @@ class TextMelMotionBatchCollate:
             "spks": spks,
             'pitches': pitches,
             'energies': energies,
+            'durations': durations,
             'filepaths': filepaths
         }

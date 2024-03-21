@@ -40,7 +40,8 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         optimizer=None,
         scheduler=None,
         prior_loss=True,
-        warm_start_path=None
+        warm_start_path=None,
+        use_provided_durations=False
     ):
         super().__init__()
 
@@ -55,6 +56,7 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         self.prior_loss = prior_loss
         self.align_with_motion = align_with_motion
         self.motion_prior_loss = motion_prior_loss
+        self.use_provided_durations = use_provided_durations
         self.update_data_statistics(data_statistics)
 
 
@@ -191,7 +193,7 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             "rtf": rtf,
         }
 
-    def forward(self, x, x_lengths, y, y_lengths, y_motion, pitch, energy, spks=None, out_size=None, cond=None):
+    def forward(self, x, x_lengths, y, y_lengths, y_motion, pitch, energy, durations=None, spks=None, out_size=None, cond=None):
         """
         Computes 3 losses:
             1. duration loss: loss between predicted token durations and those extracted by Monotinic Alignment Search (MAS).
@@ -223,28 +225,33 @@ class MatchTTSG(BaseLightningClass):  # 🍵
         y_mask = sequence_mask(y_lengths, y_max_length).unsqueeze(1).to(x_mask)
         attn_mask = x_mask.unsqueeze(-1) * y_mask.unsqueeze(2)
         
-        
         if self.align_with_motion:
             y = pack([y, y_motion], "b * t")[0]
             mu_x_aligner = mu_x[:, : self.n_feats + self.n_motions]
         else:
             mu_x_aligner = mu_x[:, : self.n_feats]
 
-        # Use MAS to find most likely alignment `attn` between text and mel-spectrogram
-        with torch.no_grad():
-            const = -0.5 * math.log(2 * math.pi) * self.n_feats
-            factor = -0.5 * torch.ones(mu_x_aligner.shape, dtype=mu_x_aligner.dtype, device=mu_x_aligner.device)
-            y_square = torch.matmul(factor.transpose(1, 2), y**2)
-            y_mu_double = torch.matmul(2.0 * (factor * mu_x_aligner).transpose(1, 2), y)
-            mu_square = torch.sum(factor * (mu_x_aligner**2), 1).unsqueeze(-1)
-            log_prior = y_square - y_mu_double + mu_square + const
+        if not self.use_provided_durations:
+            # Use MAS to find most likely alignment `attn` between text and mel-spectrogram
+            with torch.no_grad():
+                const = -0.5 * math.log(2 * math.pi) * self.n_feats
+                factor = -0.5 * torch.ones(mu_x_aligner.shape, dtype=mu_x_aligner.dtype, device=mu_x_aligner.device)
+                y_square = torch.matmul(factor.transpose(1, 2), y**2)
+                y_mu_double = torch.matmul(2.0 * (factor * mu_x_aligner).transpose(1, 2), y)
+                mu_square = torch.sum(factor * (mu_x_aligner**2), 1).unsqueeze(-1)
+                log_prior = y_square - y_mu_double + mu_square + const
 
-            attn = monotonic_align.maximum_path(log_prior, attn_mask.squeeze(1))
-            attn = attn.detach()
+                attn = monotonic_align.maximum_path(log_prior, attn_mask.squeeze(1))
+                attn = attn.detach()
 
-        # Compute loss between predicted log-scaled durations and those obtained from MAS
-        # refered to as prior loss in the paper
-        logw_ = torch.log(1e-8 + torch.sum(attn.unsqueeze(1), -1)) * x_mask
+            # Compute loss between predicted log-scaled durations and those obtained from MAS
+            # refered to as prior loss in the paper 
+            # attn shape: b, x_len, y_len
+            logw_ = torch.log(1e-8 + torch.sum(attn.unsqueeze(1), -1)) * x_mask      # (b, 1, t)
+        else:
+            attn = generate_path(durations.squeeze(1), attn_mask.squeeze(1))
+            logw_ = torch.log(1e-8 + durations) * x_mask
+
         dur_loss = self.dp.compute_loss(logw_, enc_output, x_mask) 
         
         # Add prosody predictors
@@ -304,4 +311,4 @@ class MatchTTSG(BaseLightningClass):  # 🍵
             "diff_loss": diff_loss,
         })
 
-        return loss
+        return loss, attn

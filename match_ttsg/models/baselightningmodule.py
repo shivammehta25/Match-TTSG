@@ -81,9 +81,10 @@ class BaseLightningClass(LightningModule, ABC):
         y_motion = batch["y_motion"]
         pitch = batch["pitches"]
         energy = batch["energies"]
+        durations = batch["durations"]
         
 
-        loss_dict = self(
+        loss_dict, attn = self(
             x=x,
             x_lengths=x_lengths,
             y=y,
@@ -91,6 +92,7 @@ class BaseLightningClass(LightningModule, ABC):
             y_motion=y_motion,
             pitch=pitch,
             energy=energy,
+            durations=durations,
             spks=spks,
             out_size=self.out_size,
         )

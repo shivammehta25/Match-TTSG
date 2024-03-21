@@ -31,5 +31,6 @@ data_statistics:  # Computed for tsg2 dataset
   motion_mean: -0.464329 
   motion_std: 0.576328
 motion_pipeline_filename: data_pipe.expmap_86.1328125fps.sav 
+use_provided_durations: ${model.use_provided_durations}
 seed: ${seed}
 generate_properties: false

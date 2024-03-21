@@ -19,3 +19,4 @@ align_with_motion: True
 motion_prior_loss: True
 prior_loss: true
 warm_start_path: null
+use_provided_durations: false
