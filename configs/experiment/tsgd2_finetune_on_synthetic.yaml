@@ -24,7 +24,7 @@ model:
     # lr: 5e-5
 
   # warm_start_path: logs/train/synthetic_trimodal_light/runs/2024-03-21_12-12-44/checkpoints/checkpoint_epoch=699.ckpt
-  use_provided_durations: False
+  use_provided_durations: True 
 
 
 trainer:
