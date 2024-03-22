@@ -132,7 +132,7 @@ def main():
     args = parser.parse_args()
 
     with initialize(version_base="1.3", config_path="../../configs/data"):
-        cfg = compose(config_name=args.input_config, return_hydra_config=True, overrides=[])
+        cfg = compose(config_name=args.input_config, return_hydra_config=True, overrides=["use_provided_durations=False"])
 
     root_path = rootutils.find_root(search_from=__file__, indicator=".project-root")
 
