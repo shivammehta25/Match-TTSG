@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🍵 Matcha-TTS: A fast TTS architecture with conditional flow matching
+# Unified Speech and Gesture Synthesis Using Flow Matching
 
 ### [Shivam Mehta](https://www.kth.se/profile/smehta), [Ruibo Tu](https://www.kth.se/profile/ruibo), [Simon Alexanderson](https://www.kth.se/profile/simonal), [Jonas Beskow](https://www.kth.se/profile/beskow), [Éva Székely](https://www.kth.se/profile/szekely), and [Gustav Eje Henter](https://people.kth.se/~ghe/)
 
