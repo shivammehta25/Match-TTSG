@@ -1,8 +1,8 @@
 <div align="center">
 
-# 🍵 Matcha-TTS: A fast TTS architecture with conditional flow matching
+# Unified Speech and Gesture Synthesis Using Flow Matching
 
-### [Shivam Mehta](https://www.kth.se/profile/smehta), [Ruibo Tu](https://www.kth.se/profile/ruibo), [Jonas Beskow](https://www.kth.se/profile/beskow), [Éva Székely](https://www.kth.se/profile/szekely), and [Gustav Eje Henter](https://people.kth.se/~ghe/)
+### [Shivam Mehta](https://www.kth.se/profile/smehta), [Ruibo Tu](https://www.kth.se/profile/ruibo), [Simon Alexanderson](https://www.kth.se/profile/simonal), [Jonas Beskow](https://www.kth.se/profile/beskow), [Éva Székely](https://www.kth.se/profile/szekely), and [Gustav Eje Henter](https://people.kth.se/~ghe/)
 
 [![python](https://img.shields.io/badge/-Python_3.10-blue?logo=python&logoColor=white)](https://www.python.org/downloads/release/python-3100/)
 [![pytorch](https://img.shields.io/badge/PyTorch_2.0+-ee4c2c?logo=pytorch&logoColor=white)](https://pytorch.org/get-started/locally/)
@@ -11,30 +11,25 @@
 [![black](https://img.shields.io/badge/Code%20Style-Black-black.svg?labelColor=gray)](https://black.readthedocs.io/en/stable/)
 [![isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
 
-<p style="text-align: center;">
-  <img src="https://shivammehta25.github.io/Matcha-TTS/images/logo.png" height="128"/>
-</p>
-
 </div>
 
-> This is the official code implementation of 🍵 Matcha-TTS [ICASSP 2024].
+> This is the official code implementation of Unified Speech and Gesture Synthesis Using Flow Matching [ICASSP 2024].
 
-We propose 🍵 Matcha-TTS, a new approach to non-autoregressive neural TTS, that uses [conditional flow matching](https://arxiv.org/abs/2210.02747) (similar to [rectified flows](https://arxiv.org/abs/2209.03003)) to speed up ODE-based speech synthesis. Our method:
+We introduce a new method, Match-TTSG, for diffusion-like joint synthesis of speech and 3D gestures from text. Our main improvements are:
 
-- Is probabilistic
-- Has compact memory footprint
-- Sounds highly natural
-- Is very fast to synthesise from
+1. A new architecture that unifies speech and motion synthesis into one single pathway and decoder.
+2. Training using [flow matching](https://arxiv.org/abs/2210.02747), a.k.a. [rectified flows](https://arxiv.org/abs/2209.03003).
 
-Check out our [demo page](https://shivammehta25.github.io/Matcha-TTS) and read [our ICASSP 2024 paper](https://arxiv.org/abs/2309.03199) for more details.
+Compared to the [previous state of the art](https://arxiv.org/abs/2306.09417), our new method:
 
-[Pre-trained models](https://drive.google.com/drive/folders/17C_gYgEHOxI5ZypcfE_k1piKCtyR0isJ?usp=sharing) will be automatically downloaded with the CLI or gradio interface.
+- Improves speech and motion quality
+- Is smaller
+- Is 10 times faster
+- Generates speech and gestures that are a much better fit for each other
 
-You can also [try 🍵 Matcha-TTS in your browser on HuggingFace 🤗 spaces](https://huggingface.co/spaces/shivammehta25/Matcha-TTS).
+To our knowledge, this is the first method synthesising 3D motion using flow matching or rectified flows.
 
-## Teaser video
-
-[![Watch the video](https://img.youtube.com/vi/xmvJkz3bqw0/hqdefault.jpg)](https://youtu.be/xmvJkz3bqw0)
+Check out our [demo page](https://shivammehta25.github.io/Match-TTSG/) and read our [ICASSP 2024 paper](https://arxiv.org/abs/2310.05181) for more details.
 
 ## Installation
 
@@ -42,20 +37,14 @@ You can also [try 🍵 Matcha-TTS in your browser on HuggingFace 🤗 spaces](ht
 
 ```
 conda create -n matcha-tts python=3.10 -y
-conda activate matcha-tts
+conda activate match-ttsg
 ```
 
-2. Install Matcha TTS using pip or from source
+2. Install from source
 
 ```bash
-pip install matcha-tts
-```
-
-from source
-
-```bash
-pip install git+https://github.com/shivammehta25/Matcha-TTS.git
-cd Matcha-TTS
+pip install git+https://github.com/shivammehta25/Match-TTSG.git
+cd Match-TTSG
 pip install -e .
 ```
 
@@ -190,7 +179,7 @@ matcha-tts --text "<INPUT TEXT>" --checkpoint_path <PATH TO CHECKPOINT>
 
 ## ONNX support
 
-> Special thanks to [@mush42](https://github.com/mush42) for implementing ONNX export and inference support.
+> Special thanks to [@mush42](https://github.com/mush42) for implementing ONNX export and inference support in Matcha-TTS, which this project inherits.
 
 It is possible to export Matcha checkpoints to [ONNX](https://onnx.ai/), and run inference on the exported ONNX graph.
 
@@ -256,13 +245,14 @@ This will write `.wav` audio files to the output directory.
 
 If you use our code or otherwise find this work useful, please cite our paper:
 
-```text
-@inproceedings{mehta2024matcha,
-  title={Matcha-{TTS}: A fast {TTS} architecture with conditional flow matching},
-  author={Mehta, Shivam and Tu, Ruibo and Beskow, Jonas and Sz{\'e}kely, {\'E}va and Henter, Gustav Eje},
+```bibtex
+@inproceedings{mehta2024matchttsg,
+  author={Mehta, Shivam and Tu, Ruibo and Alexanderson, Simon and Beskow, Jonas and Sz{\'e}kely, {\'E}va and Henter, Gustav Eje},
   booktitle={Proc. ICASSP},
-  year={2024}
-}
+  title={Unified Speech and Gesture Synthesis Using Flow Matching}, 
+  year={2024},
+  pages={8220-8224},
+  doi={10.1109/ICASSP48485.2024.10445998}}
 ```
 
 ## Acknowledgements
