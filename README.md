@@ -21,6 +21,8 @@ We propose 🍵 Match-TTSG, a novel, unified architecture for jointly synthesisi
 - Has a smaller memory footprint
 - Can jointly generate speech and gestures together in one single process
 
+Check out our [demo page](https://shivammehta25.github.io/Match-TTSG/) and read our [ICASSP 2024 paper](https://arxiv.org/abs/2310.05181) for more details.
+
 ## Installation
 
 1. Create an environment (suggested but optional)
