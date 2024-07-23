@@ -15,11 +15,19 @@
 
 > This is the official code implementation of Unified Speech and Gesture Synthesis Using Flow Matching [ICASSP 2024].
 
-We propose 🍵 Match-TTSG, a novel, unified architecture for jointly synthesising speech acoustics and skeleton-based 3D gesture motion from text, trained using optimal-transport conditional flow matching (OT-CFM). Our method:
+We introduce a new method, Match-TTSG, for diffusion-like joint synthesis of speech and 3D gestures from text. Our main improvements are:
 
-- Is simpler than the previous state of the art
-- Has a smaller memory footprint
-- Can jointly generate speech and gestures together in one single process
+1. A new architecture that unifies speech and motion synthesis into one single pathway and decoder.
+2. Training using [flow matching](https://arxiv.org/abs/2210.02747), a.k.a. [rectified flows](https://arxiv.org/abs/2209.03003).
+
+Compared to the [previous state of the art](https://arxiv.org/abs/2306.09417), our new method:
+
+- Improves speech and motion quality
+- Is smaller
+- Is 10 times faster
+- Generates speech and gestures that are a much better fit for each other
+
+To our knowledge, this is the first method synthesising 3D motion using flow matching or rectified flows.
 
 Check out our [demo page](https://shivammehta25.github.io/Match-TTSG/) and read our [ICASSP 2024 paper](https://arxiv.org/abs/2310.05181) for more details.
 
