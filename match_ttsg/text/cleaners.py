@@ -114,3 +114,17 @@ def english_cleaners_piper(text):
     phonemes = "".join(piper_phonemize.phonemize_espeak(text=text, voice="en-US")[0])
     phonemes = collapse_whitespace(phonemes)
     return phonemes
+
+
+def mmconv_ipa_simplify(text):
+    replacements = [
+        ("ɐ", "ə"),
+        ("ˈə", "ə"),
+        ("ʤ", "dʒ"),
+        ("ʧ", "tʃ"),
+        ("ᵻ", "ɪ"),
+    ]
+    for replacement in replacements:
+        text = text.replace(replacement[0], replacement[1])
+    phonemes = collapse_whitespace(text)
+    return phonemes
